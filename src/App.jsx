@@ -9,8 +9,11 @@ const ALL_MEAL_KEYS = ["m1", "m2", "m3"];
 
 const STORE_KEY = "meal-planner-v2";
 
-const toTitleCase = (str) =>
-  str.trim().replace(/\S+/gu, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+const toSentenceCase = (str) => {
+  const s = str.trim();
+  if (!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+};
 
 const TAG_LIST = [
   { id: "allergen", label: "Алерген", short: "А" },
@@ -33,9 +36,9 @@ function migrateCells(cells) {
   const out = {};
   for (const k of Object.keys(cells || {})) {
     const v = cells[k];
-    if (Array.isArray(v)) out[k] = v.map(toTitleCase).filter(Boolean);
+    if (Array.isArray(v)) out[k] = v.map(toSentenceCase).filter(Boolean);
     else if (typeof v === "string")
-      out[k] = v.split(/[,\n]/).map((s) => toTitleCase(s)).filter(Boolean);
+      out[k] = v.split(/[,\n]/).map((s) => toSentenceCase(s)).filter(Boolean);
     else out[k] = [];
   }
   return out;
@@ -46,10 +49,10 @@ function migrateBank(bank) {
   const seen = new Map();
   for (const b of bank) {
     if (typeof b === "string") {
-      const name = toTitleCase(b);
+      const name = toSentenceCase(b);
       if (name && !seen.has(name)) seen.set(name, { name, tags: [] });
     } else if (b && typeof b === "object" && b.name) {
-      const name = toTitleCase(b.name);
+      const name = toSentenceCase(b.name);
       if (!name) continue;
       const tags = Array.isArray(b.tags) ? b.tags.filter((t) => TAG_LIST.some((T) => T.id === t)) : [];
       if (seen.has(name)) {
@@ -115,7 +118,7 @@ function MealCell({ items, onChange, onAddToBank, bank, placeholder }) {
     && !suggestions.some((s) => s.toLowerCase() === draft.trim().toLowerCase());
 
   const addItem = (text) => {
-    const t = toTitleCase(text || "");
+    const t = toSentenceCase(text || "");
     if (!t) return;
     if (!items.includes(t)) onChange([...items, t]);
     onAddToBank(t);
@@ -420,7 +423,7 @@ export default function App() {
   };
   const addToBank = (name) => {
     if (!name) return;
-    const normalized = toTitleCase(name);
+    const normalized = toSentenceCase(name);
     setStore((s) => {
       const idx = s.bank.findIndex((b) => b.name === normalized);
       if (idx >= 0) {
@@ -584,7 +587,7 @@ export default function App() {
       for (let i = 0; i < blk.lines.length && i < ALL_MEAL_KEYS.length; i++) {
         const items = blk.lines[i]
           .split(/[,;]/)
-          .map((s) => toTitleCase(s.replace(/^[-•*]\s*/, "")))
+          .map((s) => toSentenceCase(s.replace(/^[-•*]\s*/, "")))
           .filter(Boolean);
         cellsMap[`${blk.day}-${ALL_MEAL_KEYS[i]}`] = items;
         for (const it of items) allItems.add(it);
