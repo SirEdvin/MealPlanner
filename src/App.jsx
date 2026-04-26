@@ -9,6 +9,9 @@ const ALL_MEAL_KEYS = ["m1", "m2", "m3"];
 
 const STORE_KEY = "meal-planner-v2";
 
+const toTitleCase = (str) =>
+  str.trim().replace(/\S+/gu, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+
 const TAG_LIST = [
   { id: "allergen", label: "Алерген", short: "А" },
   { id: "cook",     label: "Треба готувати", short: "Г" },
@@ -30,9 +33,9 @@ function migrateCells(cells) {
   const out = {};
   for (const k of Object.keys(cells || {})) {
     const v = cells[k];
-    if (Array.isArray(v)) out[k] = v;
+    if (Array.isArray(v)) out[k] = v.map(toTitleCase).filter(Boolean);
     else if (typeof v === "string")
-      out[k] = v.split(/[,\n]/).map((s) => s.trim()).filter(Boolean);
+      out[k] = v.split(/[,\n]/).map((s) => toTitleCase(s)).filter(Boolean);
     else out[k] = [];
   }
   return out;
@@ -43,10 +46,18 @@ function migrateBank(bank) {
   const seen = new Map();
   for (const b of bank) {
     if (typeof b === "string") {
-      if (!seen.has(b)) seen.set(b, { name: b, tags: [] });
+      const name = toTitleCase(b);
+      if (name && !seen.has(name)) seen.set(name, { name, tags: [] });
     } else if (b && typeof b === "object" && b.name) {
+      const name = toTitleCase(b.name);
+      if (!name) continue;
       const tags = Array.isArray(b.tags) ? b.tags.filter((t) => TAG_LIST.some((T) => T.id === t)) : [];
-      seen.set(b.name, { name: b.name, tags });
+      if (seen.has(name)) {
+        const existing = seen.get(name);
+        seen.set(name, { name, tags: Array.from(new Set([...existing.tags, ...tags])) });
+      } else {
+        seen.set(name, { name, tags });
+      }
     }
   }
   return Array.from(seen.values());
@@ -104,7 +115,7 @@ function MealCell({ items, onChange, onAddToBank, bank, placeholder }) {
     && !suggestions.some((s) => s.toLowerCase() === draft.trim().toLowerCase());
 
   const addItem = (text) => {
-    const t = (text || "").trim();
+    const t = toTitleCase(text || "");
     if (!t) return;
     if (!items.includes(t)) onChange([...items, t]);
     onAddToBank(t);
@@ -292,6 +303,104 @@ function ImportTextModal({ onClose, onApply }) {
   );
 }
 
+function WeeklySummaryModal({ week, bank, onClose }) {
+  const mealsCount = Math.min(3, Math.max(1, week.mealsCount || 3));
+  const usedKeys = ALL_MEAL_KEYS.slice(0, mealsCount);
+
+  const ingredientCounts = useMemo(() => {
+    const counts = {};
+    for (let di = 0; di < 7; di++) {
+      for (const mk of usedKeys) {
+        for (const item of (week.cells[`${di}-${mk}`] || [])) {
+          counts[item] = (counts[item] || 0) + 1;
+        }
+      }
+    }
+    return counts;
+  }, [week, usedKeys]);
+
+  const allItems = Object.entries(ingredientCounts).sort((a, b) =>
+    a[0].localeCompare(b[0], "uk")
+  );
+
+  const toCook = allItems.filter(([n]) => tagsFor(n, bank).includes("cook"));
+  const toPrep = allItems.filter(([n]) => tagsFor(n, bank).includes("prep"));
+  const allergens = allItems.filter(([n]) => tagsFor(n, bank).includes("allergen"));
+  const toBuy = allItems.filter(([n]) => {
+    const tags = tagsFor(n, bank);
+    return !tags.includes("cook") && !tags.includes("prep");
+  });
+
+  const renderList = (items) => (
+    <ul className="summary-list">
+      {items.map(([name, count]) => (
+        <li key={name} className="summary-item">
+          <span>{name}</span>
+          {count > 1 && <span className="summary-count">×{count}</span>}
+        </li>
+      ))}
+    </ul>
+  );
+
+  return (
+    <div className="modal-backdrop" onClick={(e) => { if (e.target.classList.contains("modal-backdrop")) onClose(); }}>
+      <div className="modal">
+        <div className="modal-head">
+          <h3>Підсумок тижня</h3>
+          <button className="modal-x" onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body">
+          <p className="summary-total">
+            Унікальних страв: <strong>{allItems.length}</strong>
+          </p>
+          {allItems.length === 0 && (
+            <div className="summary-empty">Цей тиждень порожній</div>
+          )}
+          {toBuy.length > 0 && (
+            <div className="summary-section">
+              <div className="summary-section-head">
+                <span>Купити</span>
+                <span className="summary-count-badge">{toBuy.length}</span>
+              </div>
+              {renderList(toBuy)}
+            </div>
+          )}
+          {toCook.length > 0 && (
+            <div className="summary-section">
+              <div className="summary-section-head t-cook">
+                <span>Готувати</span>
+                <span className="summary-count-badge">{toCook.length}</span>
+              </div>
+              {renderList(toCook)}
+            </div>
+          )}
+          {toPrep.length > 0 && (
+            <div className="summary-section">
+              <div className="summary-section-head t-prep">
+                <span>Заготовки</span>
+                <span className="summary-count-badge">{toPrep.length}</span>
+              </div>
+              {renderList(toPrep)}
+            </div>
+          )}
+          {allergens.length > 0 && (
+            <div className="summary-section">
+              <div className="summary-section-head t-allergen">
+                <span>Алергени</span>
+                <span className="summary-count-badge">{allergens.length}</span>
+              </div>
+              {renderList(allergens)}
+            </div>
+          )}
+        </div>
+        <div className="modal-foot">
+          <button onClick={onClose}>Закрити</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [store, setStore] = useState(loadStore);
 
@@ -311,13 +420,14 @@ export default function App() {
   };
   const addToBank = (name) => {
     if (!name) return;
+    const normalized = toTitleCase(name);
     setStore((s) => {
-      const idx = s.bank.findIndex((b) => b.name === name);
+      const idx = s.bank.findIndex((b) => b.name === normalized);
       if (idx >= 0) {
         const it = s.bank[idx];
         return { ...s, bank: [...s.bank.filter((_, i) => i !== idx), it] };
       }
-      const next = [...s.bank, { name, tags: [] }];
+      const next = [...s.bank, { name: normalized, tags: [] }];
       return { ...s, bank: next.slice(-300) };
     });
   };
@@ -474,7 +584,7 @@ export default function App() {
       for (let i = 0; i < blk.lines.length && i < ALL_MEAL_KEYS.length; i++) {
         const items = blk.lines[i]
           .split(/[,;]/)
-          .map((s) => s.trim().replace(/^[-•*]\s*/, ""))
+          .map((s) => toTitleCase(s.replace(/^[-•*]\s*/, "")))
           .filter(Boolean);
         cellsMap[`${blk.day}-${ALL_MEAL_KEYS[i]}`] = items;
         for (const it of items) allItems.add(it);
@@ -526,6 +636,7 @@ export default function App() {
   const [showHistory, setShowHistory] = useState(false);
   const [showBank, setShowBank] = useState(false);
   const [showImportText, setShowImportText] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
 
   const bankReversed = useMemo(() => store.bank.slice().reverse(), [store.bank]);
 
@@ -573,6 +684,10 @@ export default function App() {
 
         <button onClick={() => setShowBank((v) => !v)}>
           {showBank ? "✕ " : ""}Банк ({store.bank.length})
+        </button>
+
+        <button onClick={() => setShowSummary((v) => !v)}>
+          {showSummary ? "✕ " : ""}Підсумок тижня
         </button>
 
         <Menu label="Дані">
@@ -732,6 +847,14 @@ export default function App() {
         <ImportTextModal
           onClose={() => setShowImportText(false)}
           onApply={applyListImport}
+        />
+      )}
+
+      {showSummary && (
+        <WeeklySummaryModal
+          week={week}
+          bank={store.bank}
+          onClose={() => setShowSummary(false)}
         />
       )}
 
