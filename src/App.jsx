@@ -4,10 +4,35 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakText } from './TweaksPanel';
 
 const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"];
+const DAY_MOODS = ["обійми", "смак", "радість", "ням", "ку-ку", "ігри", "сонце"];
+const DAY_EMOJIS = ["🐣", "🐻", "🍑", "🎃", "🐟", "🦆", "💛"];
 const ALL_MEALS = ["Щоранок", "Підобідок", "Надвечірок"];
+const MEAL_ICONS = ["☀️", "🥣", "🌙"];
 const ALL_MEAL_KEYS = ["m1", "m2", "m3"];
 
 const STORE_KEY = "meal-planner-v2";
+
+const FOOD_EMOJI_RULES = [
+  [/греч|каша|рис|вівс|пшен|кукуруд|булгур|кускус|млин/i, "🥣"],
+  [/морк/i, "🥕"], [/брок/i, "🥦"], [/гарбуз/i, "🎃"], [/батат/i, "🍠"], [/картоп/i, "🥔"],
+  [/банан/i, "🍌"], [/груш/i, "🍐"], [/ябл/i, "🍎"], [/полун|ягід|лохин|виноград/i, "🍓"],
+  [/перс/i, "🍑"], [/авокад/i, "🥑"], [/огір/i, "🥒"], [/ананас/i, "🍍"], [/мандар/i, "🍊"],
+  [/індич|кур|крол|м'яс|мяс/i, "🍗"], [/риб/i, "🐟"], [/жовт|яйц/i, "🥚"],
+  [/йогур|сир/i, "🫙"], [/суп|рагу|ризото/i, "🍲"],
+];
+
+const emojiForItem = (name, tags = []) => {
+  if (tags.includes("allergen")) return "❤️";
+  if (tags.includes("prep")) return "🫙";
+  if (tags.includes("cook")) return "🍳";
+  return FOOD_EMOJI_RULES.find(([re]) => re.test(name))?.[1] || "🥄";
+};
+
+const buddyForCell = (items, bank, dayIndex, mealIndex) => {
+  const first = items[0];
+  if (first) return emojiForItem(first, tagsFor(first, bank));
+  return ["🐣", "🥕", "🍌", "🐰", "🧸", "🌟", "☁️"][(dayIndex + mealIndex) % 7];
+};
 
 const toSentenceCase = (str) => {
   const s = str.trim();
@@ -101,7 +126,7 @@ function tagsFor(name, bank) {
   return it ? it.tags : [];
 }
 
-function MealCell({ items, onChange, onAddToBank, bank, placeholder }) {
+function MealCell({ items, onChange, onAddToBank, bank, placeholder, dayIndex = 0, mealIndex = 0 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [active, setActive] = useState(0);
@@ -151,7 +176,7 @@ function MealCell({ items, onChange, onAddToBank, bank, placeholder }) {
     if (tags.includes("prep")) cls.push("t-prep");
     return (
       <React.Fragment key={i}>
-        <span className={cls.join(" ")}>{it}</span>
+        <span className={cls.join(" ")}><span className="item-emoji" aria-hidden="true">{emojiForItem(it, tags)}</span>{it}</span>
         {i < items.length - 1 && <span className="sep">, </span>}
       </React.Fragment>
     );
@@ -175,7 +200,7 @@ function MealCell({ items, onChange, onAddToBank, bank, placeholder }) {
           if (tags.includes("prep")) cls.push("t-prep");
           return (
             <span key={i} className={cls.join(" ")}>
-              <span className="chip-text">{it}</span>
+              <span className="chip-text"><span className="item-emoji" aria-hidden="true">{emojiForItem(it, tags)}</span>{it}</span>
               <span className="chip-x" onClick={(e) => { e.stopPropagation(); removeItem(i); }} title="Видалити">×</span>
             </span>
           );
@@ -207,7 +232,7 @@ function MealCell({ items, onChange, onAddToBank, bank, placeholder }) {
             if (tags.includes("prep")) cls.push("t-prep");
             return (
               <div key={m} className={cls.join(" ")} onClick={() => addItem(m)} onMouseEnter={() => setActive(i)}>
-                <span className="sug-icon">+</span><span>{m}</span>
+                <span className="sug-icon">{emojiForItem(m, tags)}</span><span>{m}</span>
               </div>
             );
           })}
@@ -219,6 +244,7 @@ function MealCell({ items, onChange, onAddToBank, bank, placeholder }) {
           )}
         </div>
       )}
+      <span className="meal-buddy" aria-hidden="true">{buddyForCell(items, bank, dayIndex, mealIndex)}</span>
     </div>
   );
 }
@@ -671,7 +697,7 @@ export default function App() {
           )}
         </div>
 
-        <Menu label="Тиждень">
+        <Menu label="🌈 Тиждень">
           <button onClick={newWeek}>+ Новий тиждень</button>
           <button onClick={duplicateWeek}>Дублювати</button>
           <button onClick={clearWeek}>Очистити клітинки</button>
@@ -679,7 +705,7 @@ export default function App() {
           <button onClick={() => setShowHistory((v) => !v)}>{showHistory ? "✕ " : ""}Архів тижнів</button>
         </Menu>
 
-        <Menu label={`Прийоми: ${mealsCount}`}>
+        <Menu label={`🥣 Прийоми: ${mealsCount}`}>
           {[1, 2, 3].map((n) => (
             <button key={n} className={n === mealsCount ? "active" : ""} onClick={() => setMealsCount(n)}>
               {n} {n === 1 ? "прийом" : n < 5 ? "прийоми" : "прийомів"} на день
@@ -688,19 +714,19 @@ export default function App() {
         </Menu>
 
         <button onClick={() => setShowBank((v) => !v)}>
-          {showBank ? "✕ " : ""}Банк ({store.bank.length})
+          {showBank ? "✕ " : ""}🍯 Банк ({store.bank.length})
         </button>
 
         <button onClick={() => setShowSummary((v) => !v)}>
-          {showSummary ? "✕ " : ""}Підсумок тижня
+          {showSummary ? "✕ " : ""}⭐ Підсумок тижня
         </button>
 
-        <Menu label={`Дизайн: ${(store.designMode || "classic") === "playful" ? "Грайливий" : "Класичний"}`}>
+        <Menu label={`🎨 Дизайн: ${(store.designMode || "classic") === "playful" ? "Грайливий" : "Класичний"}`}>
           <button className={(store.designMode || "classic") === "classic" ? "active" : ""} onClick={() => setStore((s) => ({ ...s, designMode: "classic" }))}>Класичний</button>
           <button className={store.designMode === "playful" ? "active" : ""} onClick={() => setStore((s) => ({ ...s, designMode: "playful" }))}>Грайливий</button>
         </Menu>
 
-        <Menu label="Дані">
+        <Menu label="🍼 Дані">
           <button onClick={() => setShowImportText(true)}>📋 Імпорт списку</button>
           <hr/>
           <button onClick={() => exportData("week")}>↓ Експорт тижня</button>
@@ -725,7 +751,7 @@ export default function App() {
           placeholder="QR посилання…"
           title="QR-посилання для цього тижня"
         />
-        <button className="primary" onClick={() => window.print()}>Друк / PDF</button>
+        <button className="primary" onClick={() => window.print()}>🖨️ Друк / PDF</button>
       </div>
 
       {showHistory && (
@@ -844,12 +870,16 @@ export default function App() {
             gridTemplateColumns: `22mm repeat(${mealsCount}, 1fr)`,
           }}>
             <div className="cell col-h day-h"></div>
-            {MEALS.map((m) => (<div key={m} className="cell col-h">{m}</div>))}
+            {MEALS.map((m, mi) => (<div key={m} className="cell col-h"><span className="meal-head-icon" aria-hidden="true">{MEAL_ICONS[mi]}</span>{m}</div>))}
 
             {DAYS.map((d, di) => (
               <React.Fragment key={d}>
-                <div className={`cell day row-${di + 1} ${di === 6 ? "row-last" : ""}`}>{d}</div>
-                {MEAL_KEYS.map((mk) => {
+                <div className={`cell day row-${di + 1} ${di === 6 ? "row-last" : ""}`}>
+                  <span className="day-emoji" aria-hidden="true">{DAY_EMOJIS[di]}</span>
+                  <span className="day-name">{d}</span>
+                  <small>{DAY_MOODS[di]}</small>
+                </div>
+                {MEAL_KEYS.map((mk, mi) => {
                   const key = `${di}-${mk}`;
                   return (
                     <div key={mk} className={`cell row-${di + 1} ${di === 6 ? "row-last" : ""}`}>
@@ -859,6 +889,8 @@ export default function App() {
                         onAddToBank={addToBank}
                         bank={store.bank}
                         placeholder="+ страва"
+                        dayIndex={di}
+                        mealIndex={mi}
                       />
                     </div>
                   );

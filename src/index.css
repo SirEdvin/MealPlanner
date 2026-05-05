@@ -439,7 +439,12 @@ body[data-theme="weekday"] .row-7 .day { background: oklch(0.58 0.10 340); }
 }
 .mascot-strip,
 .playful-floatie,
-.qr-label {
+.qr-label,
+.item-emoji,
+.meal-buddy,
+.meal-head-icon,
+.day-emoji,
+.grid .day small {
   display: none;
 }
 
@@ -649,13 +654,30 @@ body[data-design="playful"] .grid .col-h {
   font: 900 12pt/1.15 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   border-bottom: 3px solid var(--line);
 }
-body[data-design="playful"] .grid .col-h:not(.day-h):nth-child(2)::before { content: "☀️\A"; white-space: pre; }
-body[data-design="playful"] .grid .col-h:not(.day-h):nth-child(3)::before { content: "🥣\A"; white-space: pre; }
-body[data-design="playful"] .grid .col-h:not(.day-h):nth-child(4)::before { content: "🌙\A"; white-space: pre; }
+body[data-design="playful"] .meal-head-icon {
+  display: block;
+  font-size: 14pt;
+  line-height: 1;
+  margin-bottom: 0.5mm;
+}
 body[data-design="playful"] .grid .day {
   background: oklch(88% 0.075 150);
   color: var(--ink);
   font: 900 15pt/1 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  flex-direction: column;
+  gap: 0.6mm;
+}
+body[data-design="playful"] .day-emoji {
+  display: block;
+  font-size: 15pt;
+  line-height: 1;
+}
+body[data-design="playful"] .grid .day small {
+  display: block;
+  font: 800 5.6pt/1 "Trebuchet MS", system-ui, sans-serif;
+  color: color-mix(in oklch, var(--ink), transparent 24%);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 body[data-design="playful"] .row-2.day { background: oklch(88% 0.065 225); }
 body[data-design="playful"] .row-3.day { background: oklch(89% 0.075 15); }
@@ -666,6 +688,25 @@ body[data-design="playful"] .row-7.day { background: oklch(88% 0.075 150); }
 body[data-design="playful"] .meal-cell .plain {
   font-size: 9.3pt;
   font-weight: 800;
+  padding-right: 6mm;
+}
+body[data-design="playful"] .meal-cell {
+  position: relative;
+  min-height: 100%;
+}
+body[data-design="playful"] .item-emoji {
+  display: inline-block;
+  margin-right: 1mm;
+}
+body[data-design="playful"] .meal-buddy {
+  display: block;
+  position: absolute;
+  right: 1.2mm;
+  bottom: 0.5mm;
+  font-size: 13pt;
+  filter: drop-shadow(0 1px 0 white);
+  pointer-events: none;
+  opacity: 0.92;
 }
 body[data-design="playful"] .item,
 body[data-design="playful"] .chip,
