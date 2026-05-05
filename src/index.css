@@ -112,7 +112,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--paper);
-  overflow: hidden;
+  overflow: visible;
 }
 .week-picker .week-name {
   border: none !important;
@@ -769,6 +769,25 @@ body[data-design="playful"] .qr-label {
   cursor: pointer;
   font-weight: 500;
 }
+.history-panel .week-row .select-week,
+.history-panel .week-row .delete-week {
+  border: none; background: transparent;
+  cursor: pointer; color: var(--ink-soft);
+  padding: 2px 6px; font-size: 13px;
+  border-radius: 3px;
+}
+.history-panel .week-row .select-week {
+  visibility: visible;
+  width: 24px;
+  flex: 0 0 24px;
+  font-weight: 600;
+}
+.history-panel .week-row.active .select-week { color: var(--accent); }
+.history-panel .week-row .delete-week { visibility: hidden; }
+.history-panel .week-row:hover .delete-week { visibility: visible; }
+.history-panel .week-row .select-week:hover,
+.history-panel .week-row .delete-week:hover { background: var(--line-soft); color: var(--ink); }
+.history-panel .week-row .delete-week:hover { color: var(--allergen); }
 .history-panel .week-row .name input {
   width: 100%;
   border: none; background: transparent;

@@ -731,14 +731,32 @@ export default function App() {
       {showHistory && (
         <div className="history-panel">
           <h3>Архів тижнів</h3>
-          {store.weeks.map((w) => (
-            <div key={w.id} className={"week-row" + (w.id === store.activeId ? " active" : "")}>
-              <div className="name" onClick={() => setStore((s) => ({ ...s, activeId: w.id }))}>
-                <input value={w.name} onChange={(e) => renameWeek(w.id, e.target.value)} onClick={(e) => e.stopPropagation()} />
+          {store.weeks.map((w) => {
+            const isActive = w.id === store.activeId;
+            const selectWeek = () => setStore((s) => ({ ...s, activeId: w.id }));
+            return (
+              <div key={w.id} className={"week-row" + (isActive ? " active" : "")} onClick={selectWeek}>
+                <button
+                  type="button"
+                  className="select-week"
+                  aria-label={`Обрати тиждень ${w.name}`}
+                  title="Обрати тиждень"
+                  onClick={(e) => { e.stopPropagation(); selectWeek(); }}
+                >
+                  {isActive ? "✓" : "→"}
+                </button>
+                <div className="name">
+                  <input
+                    value={w.name}
+                    onChange={(e) => renameWeek(w.id, e.target.value)}
+                    onFocus={selectWeek}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+                <button type="button" className="delete-week" title="Видалити" onClick={(e) => { e.stopPropagation(); deleteWeek(w.id); }}>×</button>
               </div>
-              <button title="Видалити" onClick={() => deleteWeek(w.id)}>×</button>
-            </div>
-          ))}
+            );
+          })}
           <button className="new-btn" onClick={newWeek}>+ Новий тиждень</button>
         </div>
       )}
