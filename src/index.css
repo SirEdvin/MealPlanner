@@ -437,6 +437,305 @@ body[data-theme="weekday"] .row-7 .day { background: oklch(0.58 0.10 340); }
   height: 22mm !important;
   display: block;
 }
+.mascot-strip,
+.playful-floatie,
+.qr-label {
+  display: none;
+}
+
+/* Playful Open Design mode */
+body[data-design="playful"] {
+  --bg: oklch(96% 0.035 78);
+  --paper: oklch(99% 0.016 92);
+  --ink: oklch(28% 0.045 48);
+  --ink-soft: oklch(52% 0.045 55);
+  --line: oklch(88% 0.045 78);
+  --line-soft: oklch(92% 0.05 82);
+  --accent: oklch(66% 0.16 36);
+  --accent-soft: oklch(92% 0.095 88);
+  --header: oklch(92% 0.095 88);
+  --hover: oklch(97% 0.04 82);
+  --allergen: oklch(62% 0.18 25);
+  --cook: oklch(58% 0.14 145);
+  --prep: oklch(58% 0.13 238);
+  font-family: "Trebuchet MS", "Inter", system-ui, sans-serif;
+  background:
+    radial-gradient(circle at 8% 12%, color-mix(in oklch, oklch(92% 0.095 88), transparent 25%) 0 58px, transparent 60px),
+    radial-gradient(circle at 92% 18%, color-mix(in oklch, oklch(88% 0.065 225), transparent 18%) 0 74px, transparent 76px),
+    radial-gradient(circle at 15% 88%, color-mix(in oklch, oklch(89% 0.075 15), transparent 18%) 0 80px, transparent 82px),
+    linear-gradient(135deg, oklch(97% 0.04 82), oklch(96% 0.035 45));
+}
+body[data-design="playful"] .toolbar {
+  gap: 10px;
+  padding: 12px 18px;
+  background: color-mix(in oklch, white, transparent 7%);
+  border-bottom: 2px dashed color-mix(in oklch, var(--line), oklch(83% 0.105 43) 30%);
+  box-shadow: 0 8px 22px color-mix(in oklch, oklch(83% 0.105 43), transparent 78%);
+  backdrop-filter: blur(12px);
+}
+body[data-design="playful"] .toolbar h1 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 8px;
+  font: 800 18px/1 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+}
+body[data-design="playful"] .toolbar h1::before {
+  content: "🧸";
+  font-size: 24px;
+}
+body[data-design="playful"] .toolbar input[type="text"],
+body[data-design="playful"] .toolbar select,
+body[data-design="playful"] .toolbar button,
+body[data-design="playful"] .menu-trigger,
+body[data-design="playful"] .week-picker {
+  min-height: 38px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 800;
+  box-shadow: 0 3px 0 color-mix(in oklch, var(--line), var(--ink) 8%);
+}
+body[data-design="playful"] .week-picker {
+  overflow: visible;
+}
+body[data-design="playful"] .week-picker .week-name,
+body[data-design="playful"] .week-picker .menu-trigger {
+  box-shadow: none;
+  min-height: 34px;
+  border: none !important;
+}
+body[data-design="playful"] .week-picker .menu-trigger {
+  border-left: 2px dashed var(--line) !important;
+}
+body[data-design="playful"] .toolbar button.primary {
+  margin-left: 0;
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+body[data-design="playful"] .menu-popover,
+body[data-design="playful"] .history-panel,
+body[data-design="playful"] .bank-panel,
+body[data-design="playful"] .modal {
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 14px 32px color-mix(in oklch, oklch(83% 0.105 43), transparent 74%);
+}
+body[data-design="playful"] .sheet-wrap {
+  position: relative;
+  padding: 22px 24px 28px;
+}
+body[data-design="playful"] .playful-floatie {
+  display: block;
+  position: fixed;
+  z-index: 0;
+  font-size: 34px;
+  filter: drop-shadow(0 8px 10px rgba(80, 45, 20, 0.16));
+  pointer-events: none;
+}
+body[data-design="playful"] .playful-floatie.carrot {
+  left: 10px;
+  top: 112px;
+  transform: rotate(-14deg);
+}
+body[data-design="playful"] .playful-floatie.bunny {
+  right: 12px;
+  top: 200px;
+  transform: rotate(10deg);
+}
+body[data-design="playful"] .sheet {
+  background:
+    radial-gradient(circle at 9% 10%, oklch(92% 0.095 88 / 0.62) 0 22mm, transparent 23mm),
+    radial-gradient(circle at 94% 8%, oklch(88% 0.065 225 / 0.48) 0 18mm, transparent 19mm),
+    linear-gradient(180deg, oklch(100% 0.006 85), var(--paper));
+  border: 3px solid color-mix(in oklch, var(--line), oklch(83% 0.105 43) 35%);
+  border-radius: 9mm;
+  box-shadow: 0 18px 44px color-mix(in oklch, oklch(83% 0.105 43), transparent 68%), 0 0 0 7px color-mix(in oklch, white, transparent 48%);
+  padding: 10mm 11mm 8mm;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 4mm;
+}
+body[data-design="playful"] .bg-art {
+  display: block;
+  position: absolute;
+  inset: 5mm;
+  border: 2px dashed color-mix(in oklch, var(--line), transparent 25%);
+  border-radius: 7mm;
+  pointer-events: none;
+}
+body[data-design="playful"] .head {
+  align-items: center;
+  border: none;
+  padding: 0 2mm;
+}
+body[data-design="playful"] .head .title {
+  font: 900 30pt/0.95 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  letter-spacing: -0.03em;
+}
+body[data-design="playful"] .head .title::before {
+  content: "✨ маленькі смаколики";
+  display: block;
+  margin-bottom: 2mm;
+  color: var(--accent);
+  font: 900 9pt/1 "Trebuchet MS", system-ui, sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+body[data-design="playful"] .head .title em {
+  color: oklch(58% 0.14 145);
+}
+body[data-design="playful"] .head .meta {
+  min-width: 56mm;
+  padding: 4mm 5mm;
+  color: var(--ink);
+  background: oklch(92% 0.095 88);
+  border: 2px solid color-mix(in oklch, var(--accent), white 45%);
+  border-radius: 7mm;
+  box-shadow: 0 4px 0 color-mix(in oklch, var(--accent), transparent 68%);
+  font-family: "Trebuchet MS", system-ui, sans-serif;
+  text-align: left;
+}
+body[data-design="playful"] .head .meta .week {
+  font: 900 12pt/1.2 "Trebuchet MS", system-ui, sans-serif;
+}
+body[data-design="playful"] .mascot-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3mm;
+}
+body[data-design="playful"] .mini-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 2.5mm;
+  min-height: 17mm;
+  padding: 2mm 3mm;
+  background: white;
+  border: 2px dashed var(--line);
+  border-radius: 5mm;
+  box-shadow: 0 3px 0 color-mix(in oklch, var(--line), var(--ink) 7%);
+  font-size: 8.8pt;
+  font-weight: 900;
+}
+body[data-design="playful"] .mini-card b {
+  font-size: 18pt;
+  line-height: 1;
+}
+body[data-design="playful"] .mini-card span {
+  display: block;
+  margin-top: 0.5mm;
+  color: var(--ink-soft);
+  font-size: 7.5pt;
+  font-weight: 700;
+}
+body[data-design="playful"] .grid {
+  border: 3px solid var(--line);
+  border-radius: 6mm;
+  background: color-mix(in oklch, white, var(--accent-soft) 18%);
+  box-shadow: inset 0 0 0 2px white;
+}
+body[data-design="playful"] .grid .cell {
+  border-right: 2px dashed color-mix(in oklch, var(--line), white 12%);
+  border-bottom: 2px dashed color-mix(in oklch, var(--line), white 12%);
+  padding: 2.1mm 2.6mm;
+  background: color-mix(in oklch, white, var(--paper) 65%);
+  font-size: 9.3pt;
+}
+body[data-design="playful"] .grid .col-h {
+  background: linear-gradient(180deg, oklch(92% 0.095 88), oklch(95% 0.06 86));
+  color: var(--ink);
+  font: 900 12pt/1.15 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  border-bottom: 3px solid var(--line);
+}
+body[data-design="playful"] .grid .col-h:not(.day-h):nth-child(2)::before { content: "☀️\A"; white-space: pre; }
+body[data-design="playful"] .grid .col-h:not(.day-h):nth-child(3)::before { content: "🥣\A"; white-space: pre; }
+body[data-design="playful"] .grid .col-h:not(.day-h):nth-child(4)::before { content: "🌙\A"; white-space: pre; }
+body[data-design="playful"] .grid .day {
+  background: oklch(88% 0.075 150);
+  color: var(--ink);
+  font: 900 15pt/1 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+}
+body[data-design="playful"] .row-2.day { background: oklch(88% 0.065 225); }
+body[data-design="playful"] .row-3.day { background: oklch(89% 0.075 15); }
+body[data-design="playful"] .row-4.day { background: oklch(90% 0.055 305); }
+body[data-design="playful"] .row-5.day { background: oklch(92% 0.095 88); }
+body[data-design="playful"] .row-6.day { background: oklch(83% 0.105 43); }
+body[data-design="playful"] .row-7.day { background: oklch(88% 0.075 150); }
+body[data-design="playful"] .meal-cell .plain {
+  font-size: 9.3pt;
+  font-weight: 800;
+}
+body[data-design="playful"] .item,
+body[data-design="playful"] .chip,
+body[data-design="playful"] .summary-item {
+  border-width: 2px;
+  border-radius: 999px;
+}
+body[data-design="playful"] .plain .item {
+  display: inline-block;
+  margin: 0.4mm 0.6mm 0.4mm 0;
+  padding: 0.4mm 1.8mm;
+  background: white;
+  border: 1.5px solid var(--line);
+}
+body[data-design="playful"] .plain .item.t-allergen {
+  color: white;
+  background: var(--allergen);
+  border-color: var(--allergen);
+}
+body[data-design="playful"] .plain .item.t-cook {
+  color: oklch(35% 0.12 145);
+  background: color-mix(in oklch, var(--cook) 18%, white);
+  border-color: color-mix(in oklch, var(--cook) 52%, white);
+}
+body[data-design="playful"] .plain .item.t-prep {
+  color: oklch(36% 0.12 238);
+  background: color-mix(in oklch, var(--prep) 18%, white);
+  border-color: color-mix(in oklch, var(--prep) 52%, white);
+}
+body[data-design="playful"] .sep {
+  display: none;
+}
+body[data-design="playful"] .chip-input,
+body[data-design="playful"] .meal-cell .suggest {
+  font-family: "Trebuchet MS", system-ui, sans-serif;
+}
+body[data-design="playful"] .foot {
+  grid-template-columns: 1fr auto;
+  gap: 6mm;
+  align-items: stretch;
+  border: none;
+  padding: 0;
+}
+body[data-design="playful"] .foot .legend,
+body[data-design="playful"] .foot .qr {
+  padding: 4mm 5mm;
+  background: white;
+  border: 2px dashed var(--line);
+  border-radius: 6mm;
+  color: var(--ink-soft);
+  font-family: "Trebuchet MS", system-ui, sans-serif;
+  font-size: 8.7pt;
+}
+body[data-design="playful"] .foot .legend strong {
+  display: block;
+  margin-bottom: 1mm;
+  color: var(--ink);
+  font: 900 13pt/1 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+}
+body[data-design="playful"] .foot .qr {
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  min-width: 34mm;
+}
+body[data-design="playful"] .qr-label {
+  display: inline-block;
+  font-weight: 900;
+  color: var(--accent);
+}
 
 /* History panel */
 .history-panel {
@@ -874,7 +1173,7 @@ body[data-theme="weekday"] .row-7 .day { background: oklch(0.58 0.10 340); }
     print-color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
   }
-  .toolbar, .history-panel, .bank-panel, .twk-panel, .modal-backdrop { display: none !important; }
+  .toolbar, .history-panel, .bank-panel, .twk-panel, .modal-backdrop, .playful-floatie { display: none !important; }
   .sheet-wrap { padding: 0 !important; display: block !important; }
   .sheet-scaler {
     transform: none !important;

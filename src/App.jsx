@@ -84,10 +84,11 @@ function loadStore() {
       activeId: parsed.activeId || parsed.weeks[0].id,
       bank: migrateBank(parsed.bank),
       theme: parsed.theme || "craft",
+      designMode: parsed.designMode || "classic",
     };
   } catch (e) {
     const w = DEFAULT_WEEK();
-    return { weeks: [w], activeId: w.id, bank: [], theme: "craft" };
+    return { weeks: [w], activeId: w.id, bank: [], theme: "craft", designMode: "classic" };
   }
 }
 
@@ -409,6 +410,7 @@ export default function App() {
 
   useEffect(() => { saveStore(store); }, [store]);
   useEffect(() => { document.body.dataset.theme = store.theme || "craft"; }, [store.theme]);
+  useEffect(() => { document.body.dataset.design = store.designMode || "classic"; }, [store.designMode]);
 
   const week = store.weeks.find((w) => w.id === store.activeId) || store.weeks[0];
   const mealsCount = Math.min(3, Math.max(1, week.mealsCount || 3));
@@ -484,7 +486,7 @@ export default function App() {
       if (!cur) return;
       payload = { kind: "meal-planner-week", version: 2, exportedAt: new Date().toISOString(), week: cur, bank: store.bank };
     } else {
-      payload = { kind: "meal-planner-all", version: 2, exportedAt: new Date().toISOString(), weeks: store.weeks, bank: store.bank, theme: store.theme };
+      payload = { kind: "meal-planner-all", version: 2, exportedAt: new Date().toISOString(), weeks: store.weeks, bank: store.bank, theme: store.theme, designMode: store.designMode };
     }
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -535,7 +537,7 @@ export default function App() {
           qrUrl: w.qrUrl || fallbackQr,
           mealsCount: Math.min(3, Math.max(1, w.mealsCount || 3)),
         }));
-        setStore({ weeks, activeId: weeks[0]?.id || "w-" + Date.now(), bank: incomingBank, theme: data.theme || "craft" });
+        setStore({ weeks, activeId: weeks[0]?.id || "w-" + Date.now(), bank: incomingBank, theme: data.theme || "craft", designMode: data.designMode || "classic" });
         alert(`Імпортовано ${weeks.length} тижні(в)`);
       } else {
         alert("Не вдалося розпізнати файл. Очікується JSON експорту планера.");
@@ -693,6 +695,11 @@ export default function App() {
           {showSummary ? "✕ " : ""}Підсумок тижня
         </button>
 
+        <Menu label={`Дизайн: ${(store.designMode || "classic") === "playful" ? "Грайливий" : "Класичний"}`}>
+          <button className={(store.designMode || "classic") === "classic" ? "active" : ""} onClick={() => setStore((s) => ({ ...s, designMode: "classic" }))}>Класичний</button>
+          <button className={store.designMode === "playful" ? "active" : ""} onClick={() => setStore((s) => ({ ...s, designMode: "playful" }))}>Грайливий</button>
+        </Menu>
+
         <Menu label="Дані">
           <button onClick={() => setShowImportText(true)}>📋 Імпорт списку</button>
           <hr/>
@@ -776,6 +783,8 @@ export default function App() {
       )}
 
       <div className="sheet-wrap">
+        <div className="playful-floatie carrot" aria-hidden="true">🥕</div>
+        <div className="playful-floatie bunny" aria-hidden="true">🐰</div>
         <div className="sheet-scaler" ref={(el) => {
           if (!el) return;
           const fit = () => {
@@ -804,6 +813,13 @@ export default function App() {
               <div className="week">{week.name}</div>
               <div>{mealsCount} {mealsCount === 1 ? "прийом" : "прийоми"} · 7 днів</div>
             </div>
+          </div>
+
+          <div className="mascot-strip">
+            <div className="mini-card"><b>🐻</b><div>Новий смак<span>гарбуз + яблучко</span></div></div>
+            <div className="mini-card"><b>🥄</b><div>М'яка текстура<span>пюре, кашки, супчики</span></div></div>
+            <div className="mini-card"><b>🌟</b><div>Малюк пробує<span>без поспіху й тиску</span></div></div>
+            <div className="mini-card"><b>🍓</b><div>Алергени видно<span>червоні пухкі бейджі</span></div></div>
           </div>
 
           <div className="grid" style={{
@@ -839,6 +855,7 @@ export default function App() {
               У «Банку страв» ви можете позначити продукт як <span className="t-allergen">алерген</span> (червоним), як <span className="t-cook">той, що треба готувати</span> (зеленим), або як <span className="t-prep">заготовку</span> (синім).
             </div>
             <div className="qr">
+              <span className="qr-label">QR 🐥</span>
               <QR value={week.qrUrl} size={88} />
             </div>
           </div>
@@ -863,6 +880,15 @@ export default function App() {
 
       <TweaksPanel title="Tweaks">
         <TweakSection label="Тема">
+          <TweakRadio
+            label="Дизайн"
+            value={store.designMode || "classic"}
+            options={[
+              { value: "classic", label: "Класичний" },
+              { value: "playful", label: "Грайливий" },
+            ]}
+            onChange={(v) => { setStore((s) => ({ ...s, designMode: v })); setTweak("designMode", v); }}
+          />
           <TweakRadio
             label="Стиль"
             value={store.theme}
