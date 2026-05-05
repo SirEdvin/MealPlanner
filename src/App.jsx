@@ -859,12 +859,6 @@ export default function App() {
             </div>
           </div>
 
-          <div className="mascot-strip">
-            <div className="mini-card"><b>🐻</b><div>Новий смак<span>гарбуз + яблучко</span></div></div>
-            <div className="mini-card"><b>🥄</b><div>М'яка текстура<span>пюре, кашки, супчики</span></div></div>
-            <div className="mini-card"><b>🌟</b><div>Малюк пробує<span>без поспіху й тиску</span></div></div>
-            <div className="mini-card"><b>🍓</b><div>Алергени видно<span>червоні пухкі бейджі</span></div></div>
-          </div>
 
           <div className="grid" style={{
             gridTemplateColumns: `22mm repeat(${mealsCount}, 1fr)`,

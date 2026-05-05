@@ -605,36 +605,6 @@ body[data-design="playful"] .head .meta {
 body[data-design="playful"] .head .meta .week {
   font: 900 12pt/1.2 "Trebuchet MS", system-ui, sans-serif;
 }
-body[data-design="playful"] .mascot-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 3mm;
-}
-body[data-design="playful"] .mini-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 2.5mm;
-  min-height: 17mm;
-  padding: 2mm 3mm;
-  background: white;
-  border: 2px dashed var(--line);
-  border-radius: 5mm;
-  box-shadow: 0 3px 0 color-mix(in oklch, var(--line), var(--ink) 7%);
-  font-size: 8.8pt;
-  font-weight: 900;
-}
-body[data-design="playful"] .mini-card b {
-  font-size: 18pt;
-  line-height: 1;
-}
-body[data-design="playful"] .mini-card span {
-  display: block;
-  margin-top: 0.5mm;
-  color: var(--ink-soft);
-  font-size: 7.5pt;
-  font-weight: 700;
-}
 body[data-design="playful"] .grid {
   border: 3px solid var(--line);
   border-radius: 6mm;
