@@ -558,9 +558,9 @@ body[data-design="playful"] .sheet {
   border: 3px solid color-mix(in oklch, var(--line), oklch(83% 0.105 43) 35%);
   border-radius: 9mm;
   box-shadow: 0 18px 44px color-mix(in oklch, oklch(83% 0.105 43), transparent 68%), 0 0 0 7px color-mix(in oklch, white, transparent 48%);
-  padding: 10mm 11mm 8mm;
+  padding: 7mm 8mm 6mm;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 4mm;
+  gap: 2.6mm;
 }
 body[data-design="playful"] .bg-art {
   display: block;
@@ -576,15 +576,15 @@ body[data-design="playful"] .head {
   padding: 0 2mm;
 }
 body[data-design="playful"] .head .title {
-  font: 900 30pt/0.95 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  font: 900 26pt/0.92 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   letter-spacing: -0.03em;
 }
 body[data-design="playful"] .head .title::before {
   content: "✨ маленькі смаколики";
   display: block;
-  margin-bottom: 2mm;
+  margin-bottom: 1.2mm;
   color: var(--accent);
-  font: 900 9pt/1 "Trebuchet MS", system-ui, sans-serif;
+  font: 900 8pt/1 "Trebuchet MS", system-ui, sans-serif;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -593,7 +593,7 @@ body[data-design="playful"] .head .title em {
 }
 body[data-design="playful"] .head .meta {
   min-width: 56mm;
-  padding: 4mm 5mm;
+  padding: 3mm 4mm;
   color: var(--ink);
   background: oklch(92% 0.095 88);
   border: 2px solid color-mix(in oklch, var(--accent), white 45%);
@@ -603,48 +603,50 @@ body[data-design="playful"] .head .meta {
   text-align: left;
 }
 body[data-design="playful"] .head .meta .week {
-  font: 900 12pt/1.2 "Trebuchet MS", system-ui, sans-serif;
+  font: 900 11pt/1.1 "Trebuchet MS", system-ui, sans-serif;
 }
 body[data-design="playful"] .grid {
   border: 3px solid var(--line);
   border-radius: 6mm;
   background: color-mix(in oklch, white, var(--accent-soft) 18%);
   box-shadow: inset 0 0 0 2px white;
+  grid-template-rows: 10mm repeat(7, minmax(0, 1fr));
 }
 body[data-design="playful"] .grid .cell {
   border-right: 2px dashed color-mix(in oklch, var(--line), white 12%);
   border-bottom: 2px dashed color-mix(in oklch, var(--line), white 12%);
-  padding: 2.1mm 2.6mm;
+  padding: 1.1mm 1.7mm;
   background: color-mix(in oklch, white, var(--paper) 65%);
-  font-size: 9.3pt;
+  font-size: 8.1pt;
+  line-height: 1.12;
 }
 body[data-design="playful"] .grid .col-h {
   background: linear-gradient(180deg, oklch(92% 0.095 88), oklch(95% 0.06 86));
   color: var(--ink);
-  font: 900 12pt/1.15 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  font: 900 10.2pt/1.05 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   border-bottom: 3px solid var(--line);
 }
 body[data-design="playful"] .meal-head-icon {
   display: block;
-  font-size: 14pt;
+  font-size: 11pt;
   line-height: 1;
-  margin-bottom: 0.5mm;
+  margin-bottom: 0.15mm;
 }
 body[data-design="playful"] .grid .day {
   background: oklch(88% 0.075 150);
   color: var(--ink);
-  font: 900 15pt/1 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  font: 900 12pt/0.95 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   flex-direction: column;
-  gap: 0.6mm;
+  gap: 0.25mm;
 }
 body[data-design="playful"] .day-emoji {
   display: block;
-  font-size: 15pt;
+  font-size: 12pt;
   line-height: 1;
 }
 body[data-design="playful"] .grid .day small {
   display: block;
-  font: 800 5.6pt/1 "Trebuchet MS", system-ui, sans-serif;
+  font: 800 4.8pt/1 "Trebuchet MS", system-ui, sans-serif;
   color: color-mix(in oklch, var(--ink), transparent 24%);
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -656,24 +658,26 @@ body[data-design="playful"] .row-5.day { background: oklch(92% 0.095 88); }
 body[data-design="playful"] .row-6.day { background: oklch(83% 0.105 43); }
 body[data-design="playful"] .row-7.day { background: oklch(88% 0.075 150); }
 body[data-design="playful"] .meal-cell .plain {
-  font-size: 9.3pt;
+  font-size: 7.8pt;
+  line-height: 1.12;
   font-weight: 800;
-  padding-right: 6mm;
+  padding-right: 4.5mm;
 }
 body[data-design="playful"] .meal-cell {
   position: relative;
   min-height: 100%;
+  gap: 0.4mm;
 }
 body[data-design="playful"] .item-emoji {
   display: inline-block;
-  margin-right: 1mm;
+  margin-right: 0.45mm;
 }
 body[data-design="playful"] .meal-buddy {
   display: block;
   position: absolute;
-  right: 1.2mm;
-  bottom: 0.5mm;
-  font-size: 13pt;
+  right: 0.8mm;
+  bottom: 0.2mm;
+  font-size: 10pt;
   filter: drop-shadow(0 1px 0 white);
   pointer-events: none;
   opacity: 0.92;
@@ -686,10 +690,10 @@ body[data-design="playful"] .summary-item {
 }
 body[data-design="playful"] .plain .item {
   display: inline-block;
-  margin: 0.4mm 0.6mm 0.4mm 0;
-  padding: 0.4mm 1.8mm;
+  margin: 0.15mm 0.35mm 0.15mm 0;
+  padding: 0.1mm 1mm;
   background: white;
-  border: 1.5px solid var(--line);
+  border: 1px solid var(--line);
 }
 body[data-design="playful"] .plain .item.t-allergen {
   color: white;
@@ -715,32 +719,37 @@ body[data-design="playful"] .meal-cell .suggest {
 }
 body[data-design="playful"] .foot {
   grid-template-columns: 1fr auto;
-  gap: 6mm;
+  gap: 4mm;
   align-items: stretch;
   border: none;
   padding: 0;
 }
 body[data-design="playful"] .foot .legend,
 body[data-design="playful"] .foot .qr {
-  padding: 4mm 5mm;
+  padding: 3mm 4mm;
   background: white;
   border: 2px dashed var(--line);
   border-radius: 6mm;
   color: var(--ink-soft);
   font-family: "Trebuchet MS", system-ui, sans-serif;
-  font-size: 8.7pt;
+  font-size: 7.8pt;
 }
 body[data-design="playful"] .foot .legend strong {
   display: block;
-  margin-bottom: 1mm;
+  margin-bottom: 0.6mm;
   color: var(--ink);
-  font: 900 13pt/1 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  font: 900 11pt/1 "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
 }
 body[data-design="playful"] .foot .qr {
   display: flex;
   align-items: center;
-  gap: 4mm;
-  min-width: 34mm;
+  gap: 3mm;
+  min-width: 29mm;
+}
+body[data-design="playful"] .qr-holder,
+body[data-design="playful"] .qr-holder canvas {
+  width: 72px !important;
+  height: 72px !important;
 }
 body[data-design="playful"] .qr-label {
   display: inline-block;
