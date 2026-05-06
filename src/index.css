@@ -733,6 +733,23 @@ body[data-design="playful"] .plain .item {
   overflow-wrap: anywhere;
   hyphens: auto;
 }
+body[data-design="playful"] .plain .item-label {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+body[data-design="playful"] .plain .item.is-long {
+  font-size: 0.9em;
+  line-height: 1;
+}
+body[data-design="playful"] .plain .item.is-compact {
+  font-size: 0.82em;
+  line-height: 0.98;
+}
 body[data-design="playful"] .plain .item.t-allergen {
   color: white;
   background: var(--allergen);

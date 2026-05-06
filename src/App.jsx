@@ -173,12 +173,16 @@ function MealCell({ items, onChange, onAddToBank, bank, placeholder, dayIndex = 
   const plainContent = items.map((it, i) => {
     const tags = tagsFor(it, bank);
     const cls = ["item"];
+    const trimmed = it.trim();
+    const longestPart = Math.max(...trimmed.split(/[\s-]+/).map((part) => part.length), 0);
+    if (trimmed.length > 16 || longestPart > 10) cls.push("is-long");
+    if (trimmed.length > 24 || longestPart > 14) cls.push("is-compact");
     if (tags.includes("allergen")) cls.push("t-allergen");
     if (tags.includes("cook")) cls.push("t-cook");
     if (tags.includes("prep")) cls.push("t-prep");
     return (
       <React.Fragment key={i}>
-        <span className={cls.join(" ")}><span className="item-emoji" aria-hidden="true">{emojiForItem(it, tags)}</span>{it}</span>
+        <span className={cls.join(" ")}><span className="item-emoji" aria-hidden="true">{emojiForItem(it, tags)}</span><span className="item-label">{it}</span></span>
         {i < items.length - 1 && <span className="sep">, </span>}
       </React.Fragment>
     );
