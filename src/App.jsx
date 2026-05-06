@@ -168,15 +168,16 @@ function MealCell({ items, onChange, onAddToBank, bank, placeholder, dayIndex = 
     if (e.key === "Escape") { setDraft(""); inputRef.current?.blur(); }
   };
 
-  const plainClass = ["plain", `item-count-${Math.min(items.length, 5)}`];
+  const countClass = items.length > 6 ? "item-count-many" : `item-count-${items.length}`;
+  const plainClass = ["plain", countClass];
 
   const plainContent = items.map((it, i) => {
     const tags = tagsFor(it, bank);
     const cls = ["item"];
     const trimmed = it.trim();
     const longestPart = Math.max(...trimmed.split(/[\s-]+/).map((part) => part.length), 0);
-    if (trimmed.length > 16 || longestPart > 10) cls.push("is-long");
-    if (trimmed.length > 24 || longestPart > 14) cls.push("is-compact");
+    if (trimmed.length > 16 || longestPart > 10) cls.push("is-long", "is-wide");
+    if (trimmed.length > 24 || longestPart > 14) cls.push("is-compact", "is-tall");
     if (tags.includes("allergen")) cls.push("t-allergen");
     if (tags.includes("cook")) cls.push("t-cook");
     if (tags.includes("prep")) cls.push("t-prep");

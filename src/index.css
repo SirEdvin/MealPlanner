@@ -686,8 +686,20 @@ body[data-design="playful"] .meal-cell .plain.item-count-4 {
   font-size: clamp(8.2pt, 1.05vw, 10.2pt);
 }
 body[data-design="playful"] .meal-cell .plain.item-count-5 {
-  grid-template-columns: repeat(auto-fit, minmax(18mm, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-flow: dense;
   font-size: clamp(7.4pt, 0.86vw, 9pt);
+}
+body[data-design="playful"] .meal-cell .plain.item-count-6 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  font-size: clamp(7.4pt, 0.86vw, 9pt);
+}
+body[data-design="playful"] .meal-cell .plain.item-count-many {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  font-size: clamp(6.5pt, 0.74vw, 8.2pt);
 }
 body[data-design="playful"] .meal-cell {
   position: relative;
@@ -749,6 +761,17 @@ body[data-design="playful"] .plain .item.is-long {
 body[data-design="playful"] .plain .item.is-compact {
   font-size: 0.82em;
   line-height: 0.98;
+}
+body[data-design="playful"] .plain.item-count-5 .item.is-wide,
+body[data-design="playful"] .plain.item-count-6 .item.is-wide,
+body[data-design="playful"] .plain.item-count-many .item.is-wide {
+  grid-column: span 2;
+}
+body[data-design="playful"] .plain.item-count-6 > .item:last-of-type {
+  grid-column: span 2;
+}
+body[data-design="playful"] .plain.item-count-many .item.is-tall {
+  grid-row: span 2;
 }
 body[data-design="playful"] .plain .item.t-allergen {
   color: white;
