@@ -168,6 +168,8 @@ function MealCell({ items, onChange, onAddToBank, bank, placeholder, dayIndex = 
     if (e.key === "Escape") { setDraft(""); inputRef.current?.blur(); }
   };
 
+  const plainClass = ["plain", `item-count-${Math.min(items.length, 5)}`];
+
   const plainContent = items.map((it, i) => {
     const tags = tagsFor(it, bank);
     const cls = ["item"];
@@ -187,7 +189,7 @@ function MealCell({ items, onChange, onAddToBank, bank, placeholder, dayIndex = 
       if (e.target.closest(".chip-x")) return;
       startEdit();
     }}>
-      {!editing && items.length > 0 && <div className="plain">{plainContent}</div>}
+      {!editing && items.length > 0 && <div className={plainClass.join(" ")} data-count={items.length}>{plainContent}</div>}
       {!editing && items.length === 0 && (
         <div className="plain placeholder">{placeholder || "+ страва"}</div>
       )}
