@@ -615,10 +615,11 @@ body[data-design="playful"] .grid {
 body[data-design="playful"] .grid .cell {
   border-right: 2px dashed color-mix(in oklch, var(--line), white 12%);
   border-bottom: 2px dashed color-mix(in oklch, var(--line), white 12%);
-  padding: 1.1mm 1.7mm;
+  padding: 0.8mm 1.25mm;
   background: color-mix(in oklch, white, var(--paper) 65%);
-  font-size: 8.1pt;
-  line-height: 1.12;
+  font-size: 9.4pt;
+  line-height: 1.1;
+  overflow: hidden;
 }
 body[data-design="playful"] .grid .col-h {
   background: linear-gradient(180deg, oklch(92% 0.095 88), oklch(95% 0.06 86));
@@ -658,10 +659,12 @@ body[data-design="playful"] .row-5.day { background: oklch(92% 0.095 88); }
 body[data-design="playful"] .row-6.day { background: oklch(83% 0.105 43); }
 body[data-design="playful"] .row-7.day { background: oklch(88% 0.075 150); }
 body[data-design="playful"] .meal-cell .plain {
-  font-size: 7.8pt;
-  line-height: 1.12;
+  font-size: 9.4pt;
+  line-height: 1.08;
   font-weight: 800;
-  padding-right: 4.5mm;
+  padding-right: 2.2mm;
+  max-height: 100%;
+  overflow: hidden;
 }
 body[data-design="playful"] .meal-cell {
   position: relative;
@@ -672,15 +675,18 @@ body[data-design="playful"] .item-emoji {
   display: inline-block;
   margin-right: 0.45mm;
 }
+body[data-design="playful"] .plain .item-emoji {
+  display: none;
+}
 body[data-design="playful"] .meal-buddy {
   display: block;
   position: absolute;
-  right: 0.8mm;
-  bottom: 0.2mm;
-  font-size: 10pt;
+  right: 0.35mm;
+  bottom: 0.1mm;
+  font-size: 8pt;
   filter: drop-shadow(0 1px 0 white);
   pointer-events: none;
-  opacity: 0.92;
+  opacity: 0.7;
 }
 body[data-design="playful"] .item,
 body[data-design="playful"] .chip,
@@ -690,8 +696,8 @@ body[data-design="playful"] .summary-item {
 }
 body[data-design="playful"] .plain .item {
   display: inline-block;
-  margin: 0.15mm 0.35mm 0.15mm 0;
-  padding: 0.1mm 1mm;
+  margin: 0.08mm 0.25mm 0.08mm 0;
+  padding: 0 0.75mm;
   background: white;
   border: 1px solid var(--line);
 }
