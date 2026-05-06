@@ -835,6 +835,271 @@ body[data-design="playful"] .qr-label {
   color: var(--accent);
 }
 
+/* Cozy Design mode */
+body[data-design="cozy"] {
+  --bg: oklch(96% 0.025 72);
+  --paper: oklch(99% 0.012 82);
+  --ink: oklch(27% 0.035 55);
+  --ink-soft: oklch(48% 0.035 58);
+  --line: oklch(86% 0.035 70);
+  --line-soft: oklch(92% 0.026 76);
+  --accent: oklch(58% 0.105 42);
+  --accent-soft: oklch(94% 0.045 68);
+  --header: oklch(95% 0.036 72);
+  --hover: oklch(97% 0.025 70);
+  --allergen: oklch(56% 0.15 24);
+  --cook: oklch(50% 0.115 145);
+  --prep: oklch(50% 0.105 235);
+  background: linear-gradient(135deg, oklch(97% 0.024 76), oklch(95% 0.026 52));
+}
+body[data-design="cozy"] .toolbar {
+  background: color-mix(in oklch, var(--bg), white 24%);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 6px 20px rgba(90, 58, 34, 0.08);
+  backdrop-filter: blur(10px);
+}
+body[data-design="cozy"] .toolbar h1 {
+  color: var(--ink);
+}
+body[data-design="cozy"] .toolbar input[type="text"],
+body[data-design="cozy"] .toolbar select,
+body[data-design="cozy"] .toolbar button,
+body[data-design="cozy"] .menu-trigger,
+body[data-design="cozy"] .week-picker {
+  border-color: var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+}
+body[data-design="cozy"] .menu-popover,
+body[data-design="cozy"] .history-panel,
+body[data-design="cozy"] .bank-panel,
+body[data-design="cozy"] .modal {
+  border-color: var(--line);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(72, 48, 32, 0.12);
+}
+body[data-design="cozy"] .sheet {
+  background:
+    radial-gradient(circle at 11% 9%, oklch(94% 0.045 68 / 0.45) 0 18mm, transparent 19mm),
+    linear-gradient(180deg, oklch(100% 0.006 82), var(--paper));
+  border: 1.5px solid color-mix(in oklch, var(--line), var(--accent) 14%);
+  border-radius: 4mm;
+  box-shadow: 0 14px 38px rgba(72, 48, 32, 0.11), 0 0 0 5px rgba(255, 255, 255, 0.42);
+  padding: 8mm 9mm 7mm;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 3.2mm;
+}
+body[data-design="cozy"] .head {
+  align-items: center;
+  padding: 0 1mm 3mm;
+  border-bottom: 1px solid var(--line);
+}
+body[data-design="cozy"] .head .title {
+  font-size: 25pt;
+  font-weight: 600;
+}
+body[data-design="cozy"] .head .title::before {
+  content: "м'який тижневий план";
+  display: block;
+  margin-bottom: 1.2mm;
+  color: var(--accent);
+  font: 700 7.5pt/1 "Inter", system-ui, sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+body[data-design="cozy"] .head .title em {
+  color: var(--accent);
+}
+body[data-design="cozy"] .head .meta {
+  min-width: 50mm;
+  padding: 2.4mm 3.4mm;
+  color: var(--ink-soft);
+  background: color-mix(in oklch, var(--accent-soft), white 30%);
+  border: 1px solid var(--line);
+  border-radius: 4mm;
+  font-family: "Inter", system-ui, sans-serif;
+}
+body[data-design="cozy"] .head .meta .week {
+  font-weight: 700;
+}
+body[data-design="cozy"] .grid {
+  border: 1.5px solid var(--line);
+  border-radius: 3.5mm;
+  background: color-mix(in oklch, white, var(--accent-soft) 10%);
+  grid-template-rows: 10mm repeat(7, minmax(0, 1fr));
+}
+body[data-design="cozy"] .grid .cell {
+  border-right: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  padding: 0.9mm 1.35mm;
+  background: color-mix(in oklch, white, var(--paper) 70%);
+  font-size: 9.4pt;
+  line-height: 1.12;
+  overflow: hidden;
+}
+body[data-design="cozy"] .grid .col-h {
+  background: linear-gradient(180deg, var(--header), oklch(97% 0.025 74));
+  color: var(--ink);
+  font: 700 10.4pt/1.08 "Fraunces", "Inter", serif;
+  border-bottom: 1.5px solid var(--line);
+}
+body[data-design="cozy"] .grid .day {
+  background: oklch(94% 0.043 70);
+  color: var(--ink);
+  font: 700 12pt/1 "Fraunces", "Inter", serif;
+  flex-direction: column;
+  gap: 0.35mm;
+}
+body[data-design="cozy"] .grid .day small {
+  display: block;
+  font: 600 4.8pt/1 "Inter", system-ui, sans-serif;
+  color: color-mix(in oklch, var(--ink-soft), transparent 18%);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+body[data-design="cozy"] .row-2.day { background: oklch(94% 0.035 205); }
+body[data-design="cozy"] .row-3.day { background: oklch(94% 0.038 25); }
+body[data-design="cozy"] .row-4.day { background: oklch(95% 0.03 305); }
+body[data-design="cozy"] .row-5.day { background: oklch(95% 0.042 88); }
+body[data-design="cozy"] .row-6.day { background: oklch(92% 0.05 45); }
+body[data-design="cozy"] .row-7.day { background: oklch(94% 0.035 150); }
+body[data-design="cozy"] .meal-cell .plain {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 0.75mm;
+  flex: 1;
+  min-height: 0;
+  font-size: 9pt;
+  line-height: 1.02;
+  font-weight: 700;
+  padding-right: 1.6mm;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+body[data-design="cozy"] .meal-cell .plain.item-count-1 {
+  font-size: clamp(11pt, 1.9vw, 15pt);
+}
+body[data-design="cozy"] .meal-cell .plain.item-count-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  font-size: clamp(9.6pt, 1.35vw, 12.4pt);
+}
+body[data-design="cozy"] .meal-cell .plain.item-count-3,
+body[data-design="cozy"] .meal-cell .plain.item-count-4 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  font-size: clamp(8.2pt, 1.05vw, 10.2pt);
+}
+body[data-design="cozy"] .meal-cell .plain.item-count-5 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  font-size: clamp(7.4pt, 0.86vw, 9pt);
+}
+body[data-design="cozy"] .meal-cell .plain.item-count-6 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  font-size: clamp(7.4pt, 0.86vw, 9pt);
+}
+body[data-design="cozy"] .meal-cell .plain.item-count-many {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  font-size: clamp(6.5pt, 0.74vw, 8.2pt);
+}
+body[data-design="cozy"] .meal-cell {
+  position: relative;
+  min-height: 100%;
+  gap: 0.4mm;
+}
+body[data-design="cozy"] .plain .item-emoji,
+body[data-design="cozy"] .meal-buddy {
+  display: none;
+}
+body[data-design="cozy"] .item,
+body[data-design="cozy"] .chip,
+body[data-design="cozy"] .summary-item {
+  border-radius: 999px;
+}
+body[data-design="cozy"] .plain .item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0.55mm 1mm;
+  background: oklch(100% 0.003 82);
+  border: 1px solid var(--line);
+  border-radius: 2.6mm;
+  text-align: center;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+body[data-design="cozy"] .plain .item-label {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+body[data-design="cozy"] .plain .item.is-long {
+  font-size: 0.9em;
+  line-height: 1;
+}
+body[data-design="cozy"] .plain .item.is-compact {
+  font-size: 0.82em;
+  line-height: 0.98;
+}
+body[data-design="cozy"] .plain.item-count-5 .item.is-wide,
+body[data-design="cozy"] .plain.item-count-6 .item.is-wide,
+body[data-design="cozy"] .plain.item-count-many .item.is-wide {
+  grid-column: span 2;
+}
+body[data-design="cozy"] .plain.item-count-6 > .item:last-of-type {
+  grid-column: span 2;
+}
+body[data-design="cozy"] .plain.item-count-many .item.is-tall {
+  grid-row: span 2;
+}
+body[data-design="cozy"] .plain .item.t-allergen {
+  color: white;
+  background: color-mix(in oklch, var(--allergen), white 8%);
+  border-color: var(--allergen);
+}
+body[data-design="cozy"] .plain .item.t-cook {
+  color: oklch(34% 0.1 145);
+  background: color-mix(in oklch, var(--cook) 14%, white);
+  border-color: color-mix(in oklch, var(--cook) 42%, white);
+}
+body[data-design="cozy"] .plain .item.t-prep {
+  color: oklch(35% 0.1 235);
+  background: color-mix(in oklch, var(--prep) 14%, white);
+  border-color: color-mix(in oklch, var(--prep) 42%, white);
+}
+body[data-design="cozy"] .sep {
+  display: none;
+}
+body[data-design="cozy"] .foot {
+  grid-template-columns: 1fr auto;
+  gap: 5mm;
+  border-top: 1px solid var(--line);
+  padding-top: 2.2mm;
+}
+body[data-design="cozy"] .foot .legend {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 7.8pt;
+}
+body[data-design="cozy"] .foot .legend strong {
+  font-weight: 700;
+}
+body[data-design="cozy"] .foot .qr .qr-holder {
+  border-color: var(--line);
+  border-radius: 2mm;
+}
+
 /* History panel */
 .history-panel {
   position: fixed;

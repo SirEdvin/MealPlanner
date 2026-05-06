@@ -12,6 +12,14 @@ const ALL_MEAL_KEYS = ["m1", "m2", "m3"];
 
 const STORE_KEY = "meal-planner-v2";
 
+const DESIGN_OPTIONS = [
+  { value: "classic", label: "Класичний" },
+  { value: "cozy", label: "Затишний" },
+  { value: "playful", label: "Грайливий" },
+];
+
+const designLabel = (value) => DESIGN_OPTIONS.find((option) => option.value === value)?.label || "Класичний";
+
 const FOOD_EMOJI_RULES = [
   [/греч|каша|рис|вівс|пшен|кукуруд|булгур|кускус|млин/i, "🥣"],
   [/морк/i, "🥕"], [/брок/i, "🥦"], [/гарбуз/i, "🎃"], [/батат/i, "🍠"], [/картоп/i, "🥔"],
@@ -728,9 +736,14 @@ export default function App() {
           {showSummary ? "✕ " : ""}⭐ Підсумок тижня
         </button>
 
-        <Menu label={`🎨 Дизайн: ${(store.designMode || "classic") === "playful" ? "Грайливий" : "Класичний"}`}>
-          <button className={(store.designMode || "classic") === "classic" ? "active" : ""} onClick={() => setStore((s) => ({ ...s, designMode: "classic" }))}>Класичний</button>
-          <button className={store.designMode === "playful" ? "active" : ""} onClick={() => setStore((s) => ({ ...s, designMode: "playful" }))}>Грайливий</button>
+        <Menu label={`🎨 Дизайн: ${designLabel(store.designMode || "classic")}`}>
+          {DESIGN_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              className={(store.designMode || "classic") === option.value ? "active" : ""}
+              onClick={() => setStore((s) => ({ ...s, designMode: option.value }))}
+            >{option.label}</button>
+          ))}
         </Menu>
 
         <Menu label="🍼 Дані">
@@ -934,10 +947,7 @@ export default function App() {
           <TweakRadio
             label="Дизайн"
             value={store.designMode || "classic"}
-            options={[
-              { value: "classic", label: "Класичний" },
-              { value: "playful", label: "Грайливий" },
-            ]}
+            options={DESIGN_OPTIONS}
             onChange={(v) => { setStore((s) => ({ ...s, designMode: v })); setTweak("designMode", v); }}
           />
           <TweakRadio
