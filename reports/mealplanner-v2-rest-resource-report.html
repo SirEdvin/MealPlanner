@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<!-- ==================================================================
+     LONG DOCUMENT · English · parchment design system
+     Multi-page A4 white paper / tech report / annual review
+     Flow: cover -> toc -> exec summary -> chapters -> appendix
+     ================================================================== -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MealPlanner v2 Ingredient Resource Report</title>
+<meta name="author" content="Chrono-chan">
+<meta name="description" content="Ingredient-centered REST resource plan for turning the current client-side MealPlanner into a server-client application.">
+<meta name="keywords" content="MealPlanner, REST, ingredients, ingredient types, API design, migration">
+<meta name="generator" content="Kami">
+<style>
+  /* Palatino is a system font, no @font-face needed */
+  @font-face { font-family: "JetBrains Mono"; src: url("../fonts/JetBrainsMono.woff2") format("woff2"); font-weight: 400; font-style: normal; }
+  @font-face { font-family: "JetBrains Mono"; src: url("../fonts/JetBrainsMono.woff2") format("woff2"); font-weight: 500; font-style: normal; }
+
+  @page {
+    size: A4;
+    margin: 20mm 22mm 22mm 22mm;
+    background: #f5f4ed;
+
+    @top-right {
+      content: string(section-title);
+      font-family: Charter, Georgia, Palatino, serif;
+      font-size: 8pt;
+      color: #6b6a64;
+    }
+
+    @bottom-center {
+      content: counter(page) "  ·  MealPlanner v2 Ingredient Resource Report";
+      font-family: Charter, Georgia, Palatino, serif;
+      font-size: 9pt;
+      color: #6b6a64;
+    }
+  }
+  @page:first {
+    @top-right { content: ""; }
+    @bottom-center { content: ""; }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --parchment: #f5f4ed;
+    --ivory:     #faf9f5;
+    --near-black:#141413;
+    --dark-warm: #3d3d3a;
+    --olive:     #504e49;
+    --stone:     #6b6a64;
+    --brand:     #1B365D;
+    --border:    #e8e6dc;
+    --border-soft:#e5e3d8;
+    --tag-bg:    #E4ECF5;
+
+    --serif: Charter, Georgia,
+             Palatino, "Times New Roman", serif;
+    --sans: var(--serif);
+    --mono:  "JetBrains Mono", "SF Mono", "Fira Code",
+             Consolas, Monaco, monospace;
+  }
+
+  html, body { background: var(--parchment); }
+
+  @media screen {
+    body { max-width: 210mm; margin: 0 auto; padding: 20mm 22mm 22mm 22mm; }
+  }
+
+  body {
+    color: var(--near-black);
+    font-family: var(--serif);
+    font-size: 10.5pt;
+    line-height: 1.55;
+    widows: 3;
+    orphans: 3;
+  }
+
+  .sans { font-family: var(--sans); }
+
+  /* COVER */
+  .cover {
+    min-height: 240mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40mm 0 0 0;
+    break-after: page;
+  }
+  .cover-eyebrow {
+    font-family: var(--sans);
+    font-size: 10pt;
+    color: var(--brand);
+    letter-spacing: 2pt;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 18pt;
+  }
+  .cover-title {
+    font-size: 40pt;
+    font-weight: 500;
+    color: var(--near-black);
+    line-height: 1.12;
+    letter-spacing: -0.5pt;
+    margin-bottom: 16pt;
+  }
+  .cover-sub {
+    font-family: var(--sans);
+    font-size: 14pt;
+    color: var(--olive);
+    line-height: 1.45;
+    max-width: 85%;
+    margin-bottom: 30pt;
+  }
+  .cover-meta {
+    font-family: var(--sans);
+    font-size: 10pt;
+    color: var(--stone);
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
+  }
+  .cover-meta strong { color: var(--dark-warm); font-weight: 500; }
+
+  /* TOC */
+  .toc { break-after: page; }
+  .toc h2 {
+    font-size: 22pt;
+    font-weight: 500;
+    margin-bottom: 14pt;
+    border-left: 2.5pt solid var(--brand);
+    border-radius: 1.5pt;
+    padding-left: 8pt;
+  }
+  .toc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6pt 0;
+    border-bottom: 0.3pt dotted var(--border);
+    font-size: 11pt;
+  }
+  .toc-item:last-of-type { border-bottom: none; }
+  .toc-num {
+    color: var(--brand);
+    font-weight: 500;
+    min-width: 30pt;
+    font-variant-numeric: tabular-nums;
+  }
+  .toc-title {
+    flex: 1;
+    color: var(--near-black);
+    padding-left: 6pt;
+  }
+  .toc-page {
+    color: var(--stone);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* HEADINGS */
+  h1 {
+    font-size: 24pt;
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.3pt;
+    margin: 0 0 10pt 0;
+    border-left: 2.5pt solid var(--brand);
+    border-radius: 1.5pt;
+    padding-left: 8pt;
+    color: var(--near-black);
+    break-after: avoid;
+  }
+  h2 {
+    font-size: 16pt;
+    font-weight: 500;
+    line-height: 1.25;
+    margin: 24pt 0 8pt 0;
+    color: var(--near-black);
+    break-after: avoid;
+    string-set: section-title content();
+  }
+  h3 {
+    font-size: 13pt;
+    font-weight: 500;
+    line-height: 1.3;
+    margin: 18pt 0 6pt 0;
+    color: var(--dark-warm);
+    break-after: avoid;
+  }
+
+  .chapter-num {
+    font-family: var(--sans);
+    font-size: 10pt;
+    color: var(--brand);
+    letter-spacing: 1pt;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 6pt;
+  }
+
+  /* PARAGRAPHS */
+  p { margin: 0 0 10pt 0; line-height: 1.55; color: var(--near-black); widows: 2; orphans: 2; }
+
+  .lead {
+    font-size: 12pt;
+    line-height: 1.55;
+    color: var(--dark-warm);
+    margin-bottom: 14pt;
+  }
+
+  .hl { color: var(--brand); font-weight: 500; }
+  strong { font-weight: 500; }
+
+  /* LISTS */
+  ul, ol {
+    margin: 6pt 0 10pt 0;
+    padding-left: 20pt;
+    line-height: 1.55;
+  }
+  ul li::marker { color: var(--brand); }
+  ol li::marker { color: var(--brand); font-weight: 500; }
+
+  /* QUOTE */
+  blockquote, .quote {
+    border-left: 2pt solid var(--brand);
+    margin: 12pt 0;
+    padding: 4pt 0 4pt 16pt;
+    color: var(--olive);
+    line-height: 1.55;
+    break-inside: avoid;
+  }
+  blockquote .cite, .quote .cite {
+    display: block;
+    font-family: var(--sans);
+    font-size: 9pt;
+    color: var(--stone);
+    margin-top: 4pt;
+  }
+
+  /* CODE */
+  code {
+    font-family: var(--mono);
+    font-size: 9pt;
+    background: var(--ivory);
+    padding: 1pt 4pt;
+    border-radius: 2pt;
+    color: var(--dark-warm);
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 9pt;
+    line-height: 1.5;
+    background: var(--ivory);
+    border-radius: 4pt;
+    padding: 10pt 14pt;
+    margin: 10pt 0;
+    white-space: pre-wrap;
+    color: var(--near-black);
+    break-inside: avoid;
+  }
+  pre code { background: transparent; padding: 0; font-size: inherit; }
+
+  /* TABLE (kami-table) */
+  table, .kami-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin: 12pt 0;
+    break-inside: avoid;
+  }
+  table th, .kami-table th {
+    text-align: left;
+    font-family: var(--sans);
+    font-weight: 500;
+    color: var(--dark-warm);
+    padding: 6pt 8pt;
+    border-bottom: 1pt solid var(--border);
+    background: var(--ivory);
+  }
+  table td, .kami-table td {
+    padding: 5pt 8pt;
+    border-bottom: 0.3pt solid var(--border-soft);
+    vertical-align: top;
+  }
+  table.compact th, .kami-table.compact th { padding: 3pt 6pt; font-size: 8pt; }
+  table.compact td, .kami-table.compact td { padding: 2pt 6pt; font-size: 8pt; line-height: 1.4; }
+  table.financial td:not(:first-child), .kami-table.financial td:not(:first-child) {
+    text-align: right; font-variant-numeric: tabular-nums;
+  }
+  table.financial th:not(:first-child), .kami-table.financial th:not(:first-child) { text-align: right; }
+  table.striped tbody tr:nth-child(even) td, .kami-table.striped tbody tr:nth-child(even) td {
+    background: var(--ivory);
+  }
+  table .total td, .kami-table .total td {
+    font-weight: 500; border-top: 1pt solid var(--brand); border-bottom: none; color: var(--near-black);
+  }
+
+  /* CALLOUT / TAKEAWAY */
+  .callout {
+    background: var(--ivory);
+    border-left: 2pt solid var(--brand);
+    padding: 10pt 14pt;
+    border-radius: 3pt;
+    margin: 12pt 0;
+    line-height: 1.55;
+    break-inside: avoid;
+  }
+  .callout blockquote,
+  .callout .quote {
+    border-left: none;
+    padding-left: 0;
+    margin: 6pt 0;
+    color: var(--olive);
+  }
+  .callout blockquote:first-child,
+  .callout .quote:first-child { margin-top: 0; }
+  .callout blockquote:last-child,
+  .callout .quote:last-child  { margin-bottom: 0; }
+  .takeaway {
+    background: var(--ivory);
+    border-radius: 4pt;
+    padding: 10pt 14pt;
+    margin: 14pt 0;
+    break-inside: avoid;
+  }
+  .takeaway-label {
+    font-family: var(--sans);
+    font-size: 9pt;
+    color: var(--brand);
+    letter-spacing: 1pt;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 4pt;
+  }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--brand);
+    font-family: var(--sans);
+    font-size: 9pt;
+    font-weight: 500;
+    padding: 1pt 6pt;
+    border-radius: 3pt;
+    letter-spacing: 0.4pt;
+    text-transform: uppercase;
+    margin-right: 4pt;
+  }
+
+  /* FIGURE */
+  figure { margin: 14pt 0; break-inside: avoid; }
+  figure img { max-width: 100%; border-radius: 4pt; }
+  figcaption {
+    font-family: var(--sans);
+    font-size: 9pt;
+    color: var(--stone);
+    margin-top: 6pt;
+    text-align: center;
+  }
+
+  /* CHAPTER BREAK */
+  .chapter { break-before: page; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div>
+    <div class="cover-eyebrow">Technical Report</div>
+    <div class="cover-title">MealPlanner v2<br>Ingredient Resource Plan</div>
+    <div class="cover-sub">An ingredient-centered resource map for moving the current localStorage React planner into a server-client architecture.</div>
+  </div>
+  <div class="cover-meta">
+    <strong>Chrono-chan</strong><br>
+    Version 1.1 · 2026.05.10<br>
+    Prepared for SirEdvin · MealPlanner
+  </div>
+</section>
+
+<!-- TOC -->
+<section class="toc">
+  <h2>Contents</h2>
+  <div class="toc-item"><span class="toc-num">01</span><span class="toc-title">Executive Summary</span><span class="toc-page">03</span></div>
+  <div class="toc-item"><span class="toc-num">02</span><span class="toc-title">Current Application Shape</span><span class="toc-page">04</span></div>
+  <div class="toc-item"><span class="toc-num">03</span><span class="toc-title">Resource Model</span><span class="toc-page">05</span></div>
+  <div class="toc-item"><span class="toc-num">04</span><span class="toc-title">Endpoint Contract Sketch</span><span class="toc-page">08</span></div>
+  <div class="toc-item"><span class="toc-num">05</span><span class="toc-title">Implementation Sequence</span><span class="toc-page">10</span></div>
+  <div class="toc-item"><span class="toc-num">06</span><span class="toc-title">Appendix</span><span class="toc-page">11</span></div>
+</section>
+
+<!-- Chapter 01 -->
+<section class="chapter">
+  <div class="chapter-num">01 · Executive Summary</div>
+  <h1>Executive Summary</h1>
+
+  <p class="lead">
+    MealPlanner v2 should treat the current React planner as a useful prototype, not as the server data model. The corrected core REST shape should be <span class="hl">MealPlan → MealCell → Ingredient links</span>, where each weekly cell references multiple ingredients. Ingredients may be raw single foods or combined prepared items, and they preserve the original planner's type metadata.
+  </p>
+
+  <h2>Key Takeaways</h2>
+  <ul>
+    <li>The current app stores everything in one browser-local object: weeks, active week, bank, theme, and design mode.</li>
+    <li>The server should not expose the current <code>cells["0-m1"]</code> object as the canonical model; use dated meal cells and slots instead.</li>
+    <li>The practical MVP resource set is <code>/meal-plans</code>, <code>/meal-cells</code>, <code>/ingredients</code>, <code>/ingredient-types</code>, <code>/summary</code>, <code>/imports/text</code>, and <code>/share-links</code>.</li>
+    <li>Households and eaters are worth adding early, because the domain is family-centered and baby-feeding-specific.</li>
+  </ul>
+
+  <div class="takeaway">
+    <div class="takeaway-label">Recommended MVP</div>
+    Start with seven persistent concepts: <strong>Household</strong>, <strong>Eater</strong>, <strong>MealPlan</strong>, <strong>MealCell</strong>, <strong>Ingredient</strong>, <strong>IngredientType</strong>, and <strong>ShareLink</strong>. Model ingredient kinds explicitly: raw ingredient versus combined ingredient.
+  </div>
+</section>
+
+<!-- Chapter 02 -->
+<section class="chapter">
+  <div class="chapter-num">02 · Current State</div>
+  <h1>Current Application Shape</h1>
+
+  <p class="lead">
+    The inspected app is a Vite React planner with one large <code>App.jsx</code>, CSS-driven print layouts, QR generation, import/export, a reusable food bank, and localStorage persistence under the key <code>meal-planner-v2</code>.
+  </p>
+
+  <h2>Observed Client Model</h2>
+  <table>
+    <thead>
+      <tr><th>Current concept</th><th>Where it lives</th><th>Server-side interpretation</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Weeks</td><td><code>store.weeks[]</code></td><td>Meal plans, preferably date-ranged and owned by a household/eater.</td></tr>
+      <tr><td>Cells</td><td><code>week.cells[day-slot]</code></td><td>Meal cells with date/day, slot, and ordered links to multiple ingredients.</td></tr>
+      <tr><td>Ingredient bank</td><td><code>store.bank[]</code></td><td>Reusable raw or combined ingredients scoped to a household.</td></tr>
+      <tr><td>Ingredient types</td><td><code>allergen</code>, <code>cook</code>, <code>prep</code></td><td>Original planner type metadata; preserve as typed ingredient classifications.</td></tr>
+      <tr><td>QR URL</td><td><code>week.qrUrl</code></td><td>Share link or public read-only URL generated by the server.</td></tr>
+      <tr><td>Theme / design</td><td><code>store.theme</code>, <code>store.designMode</code></td><td>User preferences plus optional per-plan presentation overrides.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>The Core Boundary</h2>
+  <div class="callout">
+    The frontend may keep a grid-friendly shape for rendering, but the API should expose stable resources: plans, cells, ingredients, ingredient links, and ingredient types. UI convenience should not become database architecture.
+  </div>
+
+  <h2>Current Feature Inventory</h2>
+  <ul>
+    <li><strong>Planning:</strong> 7-day plans with 1-3 meal slots per day.</li>
+    <li><strong>Editing:</strong> Click-to-edit meal cells with bank suggestions and chip-like items.</li>
+    <li><strong>Ingredient bank:</strong> Saved ingredient names with original type flags: allergen, cook, and prep.</li>
+    <li><strong>Import/export:</strong> Text import for day lists and JSON import/export for week/all data.</li>
+    <li><strong>Output:</strong> A4 print/PDF layout with QR code and multiple design modes.</li>
+    <li><strong>Summary:</strong> Derived weekly lists from ingredient links and ingredient types: buy, cook, prep, and allergens.</li>
+  </ul>
+</section>
+
+<!-- Chapter 03 -->
+<section class="chapter">
+  <div class="chapter-num">03 · Resource Model</div>
+  <h1>Resource Model</h1>
+
+  <p class="lead">
+    The REST model should be ingredient-centered and boring in the good way: nouns for persistent things, nested routes only when ownership is meaningful, and derived views separated from mutable resources.
+  </p>
+
+  <h2>Primary Resources</h2>
+  <table class="striped">
+    <thead>
+      <tr><th>Resource</th><th>Purpose</th><th>Priority</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>/me</code></td><td>Current account identity and default preferences.</td><td>MVP if auth exists</td></tr>
+      <tr><td><code>/households</code></td><td>Family/container ownership for plans, eaters, and ingredient bank.</td><td>MVP</td></tr>
+      <tr><td><code>/eaters</code></td><td>Baby/child/person profile with restrictions, age, notes, and preferences.</td><td>MVP</td></tr>
+      <tr><td><code>/meal-plans</code></td><td>Week-like planning document containing dated meal cells.</td><td>MVP core</td></tr>
+      <tr><td><code>/meal-slots</code></td><td>Named slots such as morning, midday, evening.</td><td>Embed or MVP-lite</td></tr>
+      <tr><td><code>/meal-cells</code></td><td>One cell in a weekly plan: day/date + slot + ordered ingredient links.</td><td>MVP core</td></tr>
+      <tr><td><code>/ingredients</code></td><td>Reusable ingredient bank. Each ingredient is either <code>raw</code> (tomato) or <code>combined</code> (tomato and potato salad).</td><td>MVP core</td></tr>
+      <tr><td><code>/ingredient-types</code></td><td>Original planner classifications such as allergen, needs cooking, and prep item.</td><td>MVP core</td></tr>
+      <tr><td><code>/share-links</code></td><td>Read-only public plan URLs used by QR codes.</td><td>MVP</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Derived and Processing Resources</h2>
+  <table class="striped">
+    <thead>
+      <tr><th>Resource</th><th>Purpose</th><th>REST behavior</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>/meal-plans/{id}/summary</code></td><td>Buy/cook/prep/allergen rollup.</td><td>Read-only, computed from meal-cell ingredient links and ingredient types.</td></tr>
+      <tr><td><code>/meal-plans/{id}/imports/text</code></td><td>Convert pasted day-list text into cells.</td><td>Processing endpoint; optionally preview first.</td></tr>
+      <tr><td><code>/meal-plans/{id}/export</code></td><td>Download plan data as JSON, later PDF.</td><td>Read-only representation endpoint.</td></tr>
+      <tr><td><code>/ingredient-types</code></td><td>Expose built-in ingredient type definitions.</td><td>Read-only until user-custom types exist.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Canonical Data Shape</h2>
+  <p>The main migration is from anonymous cell keys to explicit meal cells. A current key like <code>0-m1</code> maps to a date/day index and a slot ID. The cell itself does not own free text; it owns ordered links to ingredient records.</p>
+
+  <pre><code>{
+  "id": "cell_123",
+  "planId": "plan_123",
+  "date": "2026-05-03",
+  "dayIndex": 0,
+  "slotId": "slot_morning",
+  "ingredients": [
+    { "ingredientId": "ing_1", "nameSnapshot": "Tomato", "position": 1 },
+    { "ingredientId": "ing_2", "nameSnapshot": "Tomato and potato salad", "position": 2 }
+  ]
+}</code></pre>
+
+  <h2>Ingredient Model</h2>
+  <p>The ingredient resource is the center of the new model. It covers both raw ingredients and combined prepared ingredients without losing the original planner's simple bank behavior.</p>
+
+  <pre><code>{
+  "id": "ing_2",
+  "householdId": "house_123",
+  "name": "Tomato and potato salad",
+  "kind": "combined",
+  "componentIngredientIds": ["ing_tomato", "ing_potato"],
+  "typeIds": ["prep"],
+  "notes": "Prepared component for multiple cells"
+}
+
+{
+  "id": "ing_tomato",
+  "householdId": "house_123",
+  "name": "Tomato",
+  "kind": "raw",
+  "componentIngredientIds": [],
+  "typeIds": [],
+  "notes": null
+}</code></pre>
+
+  <div class="takeaway">
+    <div class="takeaway-label">Important correction</div>
+    A combined ingredient is still an ingredient. It may optionally link to component raw ingredients for shopping and preparation rollups, but the weekly meal plan cell links to the combined ingredient as one selectable item. This keeps the UI simple while giving the backend enough structure for summaries.
+  </div>
+
+  <h2>Why Ingredients, Not Generic Food Items</h2>
+  <p>The term <span class="hl">ingredient</span> is more precise for MealPlanner v2 because the planner is assembling meal cells from reusable inputs. The model should allow raw ingredients such as tomato and combined ingredients such as tomato and potato salad. This avoids a vague resource allocation layer while preserving the original simple picker experience.</p>
+</section>
+
+<!-- Chapter 04 -->
+<section class="chapter">
+  <div class="chapter-num">04 · Endpoint Contract</div>
+  <h1>Endpoint Contract Sketch</h1>
+
+  <p class="lead">
+    The endpoint design should favor predictable CRUD for persistent nouns, plus a few scoped action-like processing endpoints for imports, exports, summaries, and share links.
+  </p>
+
+  <h2>Recommended Endpoint Map</h2>
+  <pre><code># Account and family
+GET    /me
+PATCH  /me
+GET    /households
+POST   /households
+GET    /households/{householdId}
+PATCH  /households/{householdId}
+
+# Eaters / child profiles
+GET    /households/{householdId}/eaters
+POST   /households/{householdId}/eaters
+GET    /eaters/{eaterId}
+PATCH  /eaters/{eaterId}
+DELETE /eaters/{eaterId}
+
+# Plans
+GET    /meal-plans?householdId=...&amp;eaterId=...
+POST   /meal-plans
+GET    /meal-plans/{planId}
+PATCH  /meal-plans/{planId}
+DELETE /meal-plans/{planId}
+
+# Meal cells / weekly grid
+GET    /meal-plans/{planId}/cells
+POST   /meal-plans/{planId}/cells
+PUT    /meal-plans/{planId}/cells/{date}/{slotId}
+PATCH  /meal-cells/{cellId}
+DELETE /meal-cells/{cellId}
+
+# Ingredient bank
+GET    /ingredients?householdId=...&amp;q=...&amp;kind=raw|combined
+POST   /ingredients
+GET    /ingredients/{ingredientId}
+PATCH  /ingredients/{ingredientId}
+DELETE /ingredients/{ingredientId}
+GET    /ingredients/{ingredientId}/components
+PUT    /ingredients/{ingredientId}/components
+
+# Ingredient type metadata
+GET    /ingredient-types
+POST   /ingredient-types       # optional after MVP if custom types are allowed
+PATCH  /ingredient-types/{typeId}
+
+# Derived, processing, and sharing
+GET    /meal-plans/{planId}/summary
+POST   /meal-plans/{planId}/imports/text/preview
+POST   /meal-plans/{planId}/imports/text
+GET    /meal-plans/{planId}/export?format=json
+GET    /meal-plans/{planId}/share-links
+POST   /meal-plans/{planId}/share-links
+DELETE /share-links/{shareLinkId}
+GET    /public/meal-plans/{token}</code></pre>
+
+  <h2>Resource Ownership Rules</h2>
+  <table>
+    <thead><tr><th>Resource</th><th>Owner</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td>Ingredient</td><td>Household</td><td>The ingredient bank is shared by family context, not one plan.</td></tr>
+      <tr><td>Meal plan</td><td>Household + eater</td><td>A plan is usually for a specific child/person.</td></tr>
+      <tr><td>Meal cell</td><td>Meal plan</td><td>Cells do not make sense outside the plan grid.</td></tr>
+      <tr><td>Share link</td><td>Meal plan</td><td>The QR target is a public representation of one plan.</td></tr>
+      <tr><td>Preferences</td><td>User, with plan override</td><td>Defaults are personal; print appearance may be plan-specific.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Update Semantics</h2>
+  <p>Use <code>PUT /meal-plans/{planId}/cells/{date}/{slotId}</code> for replacing one cell. This matches the UI action exactly: the user edits a weekly cell, and the client sends the new ordered ingredient-link list. Use <code>PATCH /meal-cells/{cellId}</code> for partial changes such as notes or item order once cells have stable IDs.</p>
+</section>
+
+<!-- Chapter 05 -->
+<section class="chapter">
+  <div class="chapter-num">05 · Implementation Sequence</div>
+  <h1>Implementation Sequence</h1>
+
+  <p class="lead">
+    Build the backend-backed planner in thin vertical slices. The first slice should sync one plan and one ingredient bank reliably before adding extra social, print, or import sophistication.
+  </p>
+
+  <h2>Phase Plan</h2>
+  <ol>
+    <li><strong>Contract first:</strong> Write an OpenAPI skeleton for households, eaters, ingredients, ingredient types, meal plans, meal cells, and summary.</li>
+    <li><strong>Persistence:</strong> Add database models and migrations for the ingredient-centered MVP entities.</li>
+    <li><strong>Ingredient bank API:</strong> Implement create/search/update/delete for <code>ingredients</code>, including <code>kind</code>, component links, and type arrays.</li>
+    <li><strong>Plan API:</strong> Implement <code>meal-plans</code> and meal-cell replacement by date/slot.</li>
+    <li><strong>Client adapter:</strong> Convert REST cells to the current grid shape and back inside one boundary module.</li>
+    <li><strong>Summary:</strong> Reproduce the current weekly summary server-side and keep client calculation as a temporary fallback.</li>
+    <li><strong>Imports and sharing:</strong> Add text import preview, then save, then share links for QR.</li>
+  </ol>
+
+  <h2>Client Migration Boundary</h2>
+  <p>Keep the current React components as much as possible, but add a data adapter layer with two functions: <code>mealCellsToGrid(cells)</code> and <code>cellUpdateToIngredientLinksPayload(date, slotId, ingredients)</code>. This localizes the migration and prevents the UI from dictating the API.</p>
+
+  <div class="takeaway">
+    <div class="takeaway-label">First coding target</div>
+    Implement <code>ingredients</code>, <code>ingredient-types</code>, <code>meal-plans</code>, and <code>PUT /meal-plans/{id}/cells/{date}/{slotId}</code> before anything else. If these work, the existing UI can become a synced planner without redesigning every component.
+  </div>
+</section>
+
+<!-- Chapter 06 -->
+<section class="chapter">
+  <div class="chapter-num">06 · Appendix</div>
+  <h1>Appendix</h1>
+
+  <h2>A. Suggested Database Entities</h2>
+  <pre><code>User
+Household
+HouseholdMember
+Eater
+MealPlan
+MealSlot
+MealCell
+MealCellIngredient
+Ingredient
+IngredientComponent
+IngredientType
+IngredientTypeAssignment
+ShareLink
+UserPreference</code></pre>
+
+  <h2>B. MVP Schema Notes</h2>
+  <table class="compact striped">
+    <thead><tr><th>Table</th><th>Important fields</th></tr></thead>
+    <tbody>
+      <tr><td><code>meal_plans</code></td><td><code>id</code>, <code>household_id</code>, <code>eater_id</code>, <code>name</code>, <code>start_date</code>, <code>end_date</code>, <code>meal_slot_count</code>, <code>theme</code>, <code>design_mode</code></td></tr>
+      <tr><td><code>meal_cells</code></td><td><code>id</code>, <code>meal_plan_id</code>, <code>date</code>, <code>day_index</code>, <code>slot_id</code>, <code>notes</code></td></tr>
+      <tr><td><code>meal_cell_ingredients</code></td><td><code>id</code>, <code>meal_cell_id</code>, <code>ingredient_id</code>, <code>name_snapshot</code>, <code>position</code></td></tr>
+      <tr><td><code>ingredients</code></td><td><code>id</code>, <code>household_id</code>, <code>name</code>, <code>normalized_name</code>, <code>kind</code> (<code>raw</code> or <code>combined</code>), <code>emoji</code>, <code>notes</code></td></tr>
+      <tr><td><code>ingredient_components</code></td><td><code>parent_ingredient_id</code>, <code>component_ingredient_id</code>, <code>quantity</code>, <code>unit</code>, <code>position</code></td></tr>
+      <tr><td><code>ingredient_types</code></td><td><code>id</code>, <code>label</code>, <code>short_label</code>, <code>description</code>, <code>built_in</code></td></tr>
+      <tr><td><code>ingredient_type_assignments</code></td><td><code>ingredient_id</code>, <code>type_id</code></td></tr>
+      <tr><td><code>share_links</code></td><td><code>id</code>, <code>meal_plan_id</code>, <code>token</code>, <code>permissions</code>, <code>expires_at</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>C. Evidence Trail</h2>
+  <ul>
+    <li>Inspected current web planner source: <code>/home/siredvin/projects/MealPlanner/src/App.jsx</code>.</li>
+    <li>Observed Vite/React dependencies: <code>/home/siredvin/projects/MealPlanner/package.json</code>.</li>
+    <li>Observed persisted localStorage key: <code>meal-planner-v2</code>.</li>
+    <li>Observed current features in source: weeks, cell grid, bank, ingredient type toggles (<code>allergen</code>, <code>cook</code>, <code>prep</code>), QR URL, text import, JSON import/export, summary modal, print/PDF button, and design modes.</li>
+    <li>Note: recalled context mentions a larger MealPlanner monorepo under <code>/opt/Projects/MealPlanner</code>, but that path was not present in this session. The report therefore grounds its concrete evidence in the available web planner path.</li>
+  </ul>
+
+  <h2>D. Glossary</h2>
+  <p><strong>Meal plan</strong> - A week-like or date-ranged planning document.</p>
+  <p><strong>Meal cell</strong> - One cell of the plan: a specific date/day and slot containing ordered ingredient links.</p>
+  <p><strong>Ingredient</strong> - A reusable bank item. It can be raw, such as tomato, or combined, such as tomato and potato salad.</p>
+  <p><strong>Ingredient type</strong> - A planner classification preserved from the original app, currently allergen, cook, and prep.</p>
+  <p><strong>Share link</strong> - A server-generated public read-only URL that replaces manually entered QR URLs.</p>
+</section>
+
+</body>
+</html>
