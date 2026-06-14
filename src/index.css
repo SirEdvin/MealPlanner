@@ -1555,7 +1555,7 @@ body[data-design="cozy"] .foot .qr .qr-holder {
     print-color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
   }
-  .toolbar, .history-panel, .bank-panel, .twk-panel, .modal-backdrop, .playful-floatie { display: none !important; }
+  .toolbar, .history-panel, .bank-panel, .twk-panel, .modal-backdrop, .playful-floatie, .foot { display: none !important; }
   .sheet-wrap { padding: 0 !important; display: block !important; }
   .sheet-scaler {
     transform: none !important;
