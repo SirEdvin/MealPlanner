@@ -252,8 +252,10 @@ body {
   grid-template-rows: auto repeat(7, 1fr);
   border: 1px solid var(--line);
   border-radius: 2mm;
-  overflow: hidden;
+  overflow: visible;
   background: var(--paper);
+  position: relative;
+  z-index: 1;
 }
 .grid .cell {
   border-right: 1px solid var(--line-soft);
@@ -366,7 +368,7 @@ body[data-theme="weekday"] .row-7 .day { background: oklch(0.58 0.10 340); }
 .chip-input::placeholder { color: var(--ink-soft); opacity: 0.5; }
 .meal-cell .suggest {
   position: absolute;
-  z-index: 20;
+  z-index: 80;
   left: 1.5mm; right: 1.5mm; top: 100%;
   background: var(--paper);
   border: 1px solid var(--line);
@@ -1371,6 +1373,20 @@ body[data-design="cozy"] .foot .qr .qr-holder {
   color: var(--ink-soft); font-size: 12px; font-style: italic;
   padding: 6px 0;
 }
+.bank-prune {
+  width: 100%;
+  font: inherit;
+  font-size: 12.5px;
+  padding: 7px 10px;
+  margin: 0 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+}
+.bank-prune:hover { background: var(--hover); }
 
 /* Modal */
 .modal-backdrop {
@@ -1452,6 +1468,36 @@ body[data-design="cozy"] .foot .qr .qr-holder {
   font: inherit; font-size: 12.5px;
   cursor: pointer; padding: 0;
   text-decoration: underline;
+}
+.prune-actions {
+  margin-top: 0;
+  margin-bottom: 12px;
+  justify-content: flex-end;
+}
+.prune-actions button.link { margin-left: 0; }
+.prune-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 48vh;
+  overflow: auto;
+  padding-right: 4px;
+}
+.prune-list label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.prune-list label:hover,
+.prune-list label.active { background: var(--hover); }
+.prune-list input { margin: 0; }
+.prune-list .chip.bank {
+  font-size: 12.5px;
+  background: var(--accent-soft);
+  border-color: color-mix(in oklch, var(--accent) 30%, transparent);
 }
 .modal-foot {
   display: flex; gap: 8px; justify-content: flex-end;
@@ -1566,6 +1612,9 @@ body[data-design="cozy"] .foot .qr .qr-holder {
     width: 297mm !important; height: 210mm !important;
     page-break-after: avoid;
     margin: 0 !important;
+    overflow: hidden !important;
   }
+  .grid { overflow: hidden !important; }
+  .meal-cell .suggest { display: none !important; }
   .meal-cell:hover { background: transparent !important; }
 }

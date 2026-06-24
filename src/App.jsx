@@ -134,6 +134,16 @@ function tagsFor(name, bank) {
   return it ? it.tags : [];
 }
 
+function usedBankNames(weeks) {
+  const used = new Set();
+  for (const week of weeks || []) {
+    for (const items of Object.values(week.cells || {})) {
+      for (const item of items || []) used.add(item);
+    }
+  }
+  return used;
+}
+
 function MealCell({ items, onChange, onAddToBank, bank, placeholder, dayIndex = 0, mealIndex = 0 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -446,6 +456,49 @@ function WeeklySummaryModal({ week, bank, onClose }) {
   );
 }
 
+function PruneBankModal({ items, selected, onToggle, onSelectAll, onClearAll, onClose, onConfirm }) {
+  const selectedCount = selected.size;
+
+  return (
+    <div className="modal-backdrop" onClick={(e) => { if (e.target.classList.contains("modal-backdrop")) onClose(); }}>
+      <div className="modal prune-modal">
+        <div className="modal-head">
+          <h3>Прибрати зайве з банку</h3>
+          <button className="modal-x" onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body">
+          <p className="hint">
+            Ці страви є в банку, але не використані в жодній клітинці жодного тижня. Оберіть, що прибрати.
+          </p>
+          <div className="modal-options prune-actions">
+            <button className="link" type="button" onClick={onSelectAll}>Обрати все</button>
+            <button className="link" type="button" onClick={onClearAll}>Зняти все</button>
+          </div>
+          <div className="prune-list">
+            {items.map((it) => {
+              const checked = selected.has(it.name);
+              return (
+                <label key={it.name} className={checked ? "active" : ""}>
+                  <input type="checkbox" checked={checked} onChange={() => onToggle(it.name)} />
+                  <span className="chip bank">
+                    <span className="chip-text">{it.name}</span>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+        <div className="modal-foot">
+          <button onClick={onClose}>Скасувати</button>
+          <button className="primary" onClick={onConfirm} disabled={selectedCount === 0}>
+            Прибрати обрані ({selectedCount})
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [store, setStore] = useState(loadStore);
 
@@ -487,6 +540,30 @@ export default function App() {
   };
   const removeFromBank = (name) => {
     setStore((s) => ({ ...s, bank: s.bank.filter((b) => b.name !== name) }));
+  };
+
+  const findUnusedBankItems = () => {
+    const used = usedBankNames(store.weeks);
+    return store.bank.filter((it) => !used.has(it.name)).sort((a, b) => a.name.localeCompare(b.name, "uk"));
+  };
+
+  const openPruneBank = () => {
+    const items = findUnusedBankItems();
+    if (items.length === 0) {
+      alert("У банку немає зайвого: всі страви десь використані.");
+      return;
+    }
+    setPruneItems(items);
+    setPruneSelected(new Set(items.map((it) => it.name)));
+  };
+
+  const confirmPruneBank = () => {
+    setStore((s) => ({
+      ...s,
+      bank: s.bank.filter((it) => !pruneSelected.has(it.name) || usedBankNames(s.weeks).has(it.name)),
+    }));
+    setPruneItems(null);
+    setPruneSelected(new Set());
   };
 
   const setQrUrl = (v) => setStore((s) => ({
@@ -683,6 +760,8 @@ export default function App() {
   const [showBank, setShowBank] = useState(false);
   const [showImportText, setShowImportText] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [pruneItems, setPruneItems] = useState(null);
+  const [pruneSelected, setPruneSelected] = useState(() => new Set());
 
   const bankReversed = useMemo(() => store.bank.slice().reverse(), [store.bank]);
 
@@ -816,6 +895,7 @@ export default function App() {
             <span className="legend-row"><span className="leg-sw t-cook">Г</span> треба готувати — зеленим</span>
             <span className="legend-row"><span className="leg-sw t-prep">З</span> заготовка — синім</span>
           </p>
+          <button className="bank-prune" type="button" onClick={openPruneBank}>🧹 Прибрати невикористані</button>
           {store.bank.length === 0 && <div className="empty">Поки що порожньо</div>}
           <div className="bank-list">
             {bankReversed.map((it) => {
@@ -939,6 +1019,23 @@ export default function App() {
           week={week}
           bank={store.bank}
           onClose={() => setShowSummary(false)}
+        />
+      )}
+
+      {pruneItems && (
+        <PruneBankModal
+          items={pruneItems}
+          selected={pruneSelected}
+          onToggle={(name) => setPruneSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(name)) next.delete(name);
+            else next.add(name);
+            return next;
+          })}
+          onSelectAll={() => setPruneSelected(new Set(pruneItems.map((it) => it.name)))}
+          onClearAll={() => setPruneSelected(new Set())}
+          onClose={() => { setPruneItems(null); setPruneSelected(new Set()); }}
+          onConfirm={confirmPruneBank}
         />
       )}
 
