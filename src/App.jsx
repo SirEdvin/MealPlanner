@@ -11,6 +11,9 @@ const MEAL_ICONS = ["☀️", "🥣", "🌙"];
 const ALL_MEAL_KEYS = ["m1", "m2", "m3"];
 
 const STORE_KEY = "meal-planner-v2";
+const LEGACY_STORE_KEY = "meal-planner-v1";
+const STORAGE_KEY_PREFIX = "meal-planner-";
+const APP_NAME = "MealPlanner";
 
 const DESIGN_OPTIONS = [
   { value: "classic", label: "Класичний" },
@@ -99,26 +102,40 @@ function migrateBank(bank) {
   return Array.from(seen.values());
 }
 
+function sanitizeWeek(week, index = 0, fallbackQr = "https://example.com") {
+  const source = week && typeof week === "object" ? week : {};
+  return {
+    ...source,
+    id: String(source.id || `w-${Date.now()}-${index}`),
+    name: typeof source.name === "string" && source.name.trim() ? source.name : `Тиждень ${index + 1}`,
+    cells: { ...emptyCells(), ...migrateCells(source.cells) },
+    qrUrl: source.qrUrl || fallbackQr,
+    mealsCount: Math.min(3, Math.max(1, source.mealsCount || 3)),
+  };
+}
+
+function normalizeStore(input) {
+  const parsed = input && typeof input === "object" ? input : {};
+  if (!Array.isArray(parsed.weeks) || parsed.weeks.length === 0) throw new Error("У файлі немає тижнів планера");
+
+  const fallbackQr = parsed.qrUrl || "https://example.com";
+  const weeks = parsed.weeks.map((week, index) => sanitizeWeek(week, index, fallbackQr));
+  const activeId = weeks.some((week) => week.id === parsed.activeId) ? parsed.activeId : weeks[0].id;
+
+  return {
+    weeks,
+    activeId,
+    bank: migrateBank(parsed.bank),
+    theme: typeof parsed.theme === "string" && parsed.theme ? parsed.theme : "craft",
+    designMode: typeof parsed.designMode === "string" && parsed.designMode ? parsed.designMode : "classic",
+  };
+}
+
 function loadStore() {
   try {
-    const raw = localStorage.getItem(STORE_KEY) || localStorage.getItem("meal-planner-v1");
+    const raw = localStorage.getItem(STORE_KEY) || localStorage.getItem(LEGACY_STORE_KEY);
     if (!raw) throw 0;
-    const parsed = JSON.parse(raw);
-    if (!parsed.weeks || !parsed.weeks.length) throw 0;
-    const fallbackQr = parsed.qrUrl || "https://example.com";
-    parsed.weeks = parsed.weeks.map((w) => ({
-      ...w,
-      cells: { ...emptyCells(), ...migrateCells(w.cells) },
-      qrUrl: w.qrUrl || fallbackQr,
-      mealsCount: Math.min(3, Math.max(1, w.mealsCount || 3)),
-    }));
-    return {
-      weeks: parsed.weeks,
-      activeId: parsed.activeId || parsed.weeks[0].id,
-      bank: migrateBank(parsed.bank),
-      theme: parsed.theme || "craft",
-      designMode: parsed.designMode || "classic",
-    };
+    return normalizeStore(JSON.parse(raw));
   } catch (e) {
     const w = DEFAULT_WEEK();
     return { weeks: [w], activeId: w.id, bank: [], theme: "craft", designMode: "classic" };
@@ -127,6 +144,45 @@ function loadStore() {
 
 function saveStore(store) {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {}
+}
+
+function mealPlannerStorageSnapshot(store) {
+  const snapshot = {};
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith(STORAGE_KEY_PREFIX)) snapshot[key] = localStorage.getItem(key);
+    }
+  } catch (e) {}
+  snapshot[STORE_KEY] = JSON.stringify(store);
+  return snapshot;
+}
+
+function safeMealPlannerSnapshot(snapshot) {
+  if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot)) return {};
+  return Object.fromEntries(
+    Object.entries(snapshot).filter(([key, value]) =>
+      typeof key === "string" && key.startsWith(STORAGE_KEY_PREFIX) && typeof value === "string"
+    )
+  );
+}
+
+function restoreMealPlannerSnapshot(snapshot) {
+  const safeSnapshot = safeMealPlannerSnapshot(snapshot);
+  for (const [key, value] of Object.entries(safeSnapshot)) {
+    try { localStorage.setItem(key, value); } catch (e) {}
+  }
+  return Object.keys(safeSnapshot);
+}
+
+function storeFromFullImport(data) {
+  if (data.store) return normalizeStore(data.store);
+
+  const snapshot = safeMealPlannerSnapshot(data.localStorage);
+  const rawSnapshotStore = snapshot[STORE_KEY] || snapshot[LEGACY_STORE_KEY];
+  if (rawSnapshotStore) return normalizeStore(JSON.parse(rawSnapshotStore));
+
+  return normalizeStore(data);
 }
 
 function tagsFor(name, bank) {
@@ -604,7 +660,21 @@ export default function App() {
       if (!cur) return;
       payload = { kind: "meal-planner-week", version: 2, exportedAt: new Date().toISOString(), week: cur, bank: store.bank };
     } else {
-      payload = { kind: "meal-planner-all", version: 2, exportedAt: new Date().toISOString(), weeks: store.weeks, bank: store.bank, theme: store.theme, designMode: store.designMode };
+      const normalizedStore = normalizeStore(store);
+      payload = {
+        kind: "meal-planner-all",
+        version: 3,
+        exportedAt: new Date().toISOString(),
+        app: APP_NAME,
+        storeKey: STORE_KEY,
+        store: normalizedStore,
+        localStorage: mealPlannerStorageSnapshot(normalizedStore),
+        weeks: normalizedStore.weeks,
+        activeId: normalizedStore.activeId,
+        bank: normalizedStore.bank,
+        theme: normalizedStore.theme,
+        designMode: normalizedStore.designMode,
+      };
     }
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -612,7 +682,7 @@ export default function App() {
     const date = new Date().toISOString().slice(0, 10);
     const safeName = mode === "week"
       ? (payload.week.name || "тиждень").replace(/[^\p{L}\p{N}_-]+/gu, "-")
-      : "all";
+      : "transfer-all-data";
     a.href = url; a.download = `meal-planner-${safeName}-${date}.json`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -631,10 +701,8 @@ export default function App() {
       const incomingBank = migrateBank(data.bank);
       if (data.kind === "meal-planner-week" && data.week) {
         const incoming = {
-          ...data.week,
+          ...sanitizeWeek(data.week, 0, data.qrUrl || "https://example.com"),
           id: "w-" + Date.now(),
-          cells: { ...emptyCells(), ...migrateCells(data.week.cells) },
-          mealsCount: Math.min(3, Math.max(1, data.week.mealsCount || 3)),
         };
         setStore((s) => {
           const merged = [...s.bank];
@@ -646,17 +714,13 @@ export default function App() {
           return { ...s, weeks: [...s.weeks, incoming], activeId: incoming.id, bank: merged.slice(-300) };
         });
         alert(`Імпортовано тиждень «${incoming.name}»`);
-      } else if (data.kind === "meal-planner-all" && Array.isArray(data.weeks)) {
-        if (!confirm("Замінити всі дані поточного планера імпортованими? Поточні тижні буде видалено.")) return;
-        const fallbackQr = data.qrUrl || "https://example.com";
-        const weeks = data.weeks.map((w) => ({
-          ...w,
-          cells: { ...emptyCells(), ...migrateCells(w.cells) },
-          qrUrl: w.qrUrl || fallbackQr,
-          mealsCount: Math.min(3, Math.max(1, w.mealsCount || 3)),
-        }));
-        setStore({ weeks, activeId: weeks[0]?.id || "w-" + Date.now(), bank: incomingBank, theme: data.theme || "craft", designMode: data.designMode || "classic" });
-        alert(`Імпортовано ${weeks.length} тижні(в)`);
+      } else if (data.kind === "meal-planner-all") {
+        const nextStore = storeFromFullImport(data);
+        if (!confirm("Замінити всі локальні дані планера імпортованими? Поточні тижні, банк страв і налаштування буде перезаписано.")) return;
+        const restoredKeys = restoreMealPlannerSnapshot(data.localStorage);
+        saveStore(nextStore);
+        setStore(nextStore);
+        alert(`Імпортовано всі дані: ${nextStore.weeks.length} тижні(в). Відновлено ключі: ${[STORE_KEY, ...restoredKeys.filter((key) => key !== STORE_KEY)].join(", ")}`);
       } else {
         alert("Не вдалося розпізнати файл. Очікується JSON експорту планера.");
       }
@@ -825,12 +889,12 @@ export default function App() {
           ))}
         </Menu>
 
-        <Menu label="🍼 Дані">
+        <Menu label="🍼 Дані / перенос">
           <button onClick={() => setShowImportText(true)}>📋 Імпорт списку</button>
           <hr/>
           <button onClick={() => exportData("week")}>↓ Експорт тижня</button>
-          <button onClick={() => exportData("all")}>↓ Експорт усього</button>
-          <button onClick={triggerImport}>↑ Імпорт JSON</button>
+          <button onClick={() => exportData("all")}>↓ Експорт усіх даних для переносу</button>
+          <button onClick={triggerImport}>↑ Імпорт JSON / відновлення</button>
         </Menu>
         <input
           ref={importFileRef}
